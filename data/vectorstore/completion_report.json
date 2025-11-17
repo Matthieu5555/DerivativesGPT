@@ -1,0 +1,13 @@
+{
+  "total_chunks": 4918,
+  "total_vectors": 4918,
+  "embedding_dimension": 768,
+  "unique_books": 11,
+  "avg_embedding_norm": 1.0,
+  "embeddings_normalized": true,
+  "index_type": "IndexFlatIP",
+  "similarity_metric": "cosine",
+  "embedding_model": "models/text-embedding-004",
+  "vector_store_complete": true,
+  "ready_for_queries": true
+}

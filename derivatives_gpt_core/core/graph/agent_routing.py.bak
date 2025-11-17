@@ -1,0 +1,524 @@
+"""
+Agent-Specific Routing Logic
+=============================
+Routing functions that enforce agent boundaries and route queries to appropriate agents.
+"""
+
+from typing import Literal, Optional
+import logging
+
+from derivatives_gpt_core.core.state.pricing_state import OptionPricingState
+from derivatives_gpt_core.core.state.agent_state_wrapper import AgentStateWrapper
+from derivatives_gpt_core.core.state.state_factory import detect_agent_from_message
+
+logger = logging.getLogger(__name__)
+
+# Type for node names
+NodeName = str
+
+
+# ============================================================================
+# ORCHESTRATOR ROUTING (Entry Point)
+# ============================================================================
+
+def route_to_agent(state: OptionPricingState) -> Literal["educational_agent", "pricing_agent", "off_topic"]:
+    """
+    Main orchestrator routing: Determine which agent should handle the query.
+
+    This is the entry point that decides whether to route to:
+    - Educational agent (conceptual questions)
+    - Pricing agent (pricing requests)
+    - Off-topic handler (non-option queries)
+
+    Args:
+        state: Current graph state
+
+    Returns:
+        "educational_agent", "pricing_agent", or "off_topic"
+    """
+    # Check if response_type is already set (from classification)
+    response_type = state.response_type
+
+    if response_type == "explain_concept":
+        logger.info("🎓 Routing to EDUCATIONAL agent (explain_concept)")
+        return "educational_agent"
+
+    elif response_type == "can_price":
+        logger.info("💰 Routing to PRICING agent (can_price)")
+        return "pricing_agent"
+
+    elif response_type == "off_topic":
+        logger.info("❌ Routing to OFF_TOPIC handler")
+        return "off_topic"
+
+    # If response_type not set, use agent detection
+    if state.detected_agent_type:
+        agent_type = state.detected_agent_type
+        logger.info(f"Using pre-detected agent type: {agent_type}")
+    else:
+        # Detect from latest message
+        messages = state.messages
+        if messages:
+            detection = detect_agent_from_message(messages[-1])
+            agent_type = detection.agent_type
+            # Store detection result
+            state.detected_agent_type = agent_type
+            state.agent_confidence = detection.confidence
+            state.agent_reasoning = detection.reasoning
+            logger.info(f"Detected agent type: {agent_type} (confidence: {detection.confidence:.0%})")
+        else:
+            agent_type = "unified"
+            logger.warning("No messages to detect from, defaulting to unified")
+
+    # Route based on detected agent
+    if agent_type == "educational":
+        return "educational_agent"
+    elif agent_type == "pricing":
+        return "pricing_agent"
+    else:
+        # Unified or unclear - check if option-related
+        if state.is_option_related:
+            return "pricing_agent"  # Default to pricing for option-related
+        else:
+            return "off_topic"
+
+
+# ============================================================================
+# EDUCATIONAL AGENT ROUTING
+# ============================================================================
+
+def route_educational_query(state: OptionPricingState) -> NodeName:
+    """
+    Routing within educational agent flow.
+
+    Educational flow:
+    1. Check if RAG needed
+    2. Generate explanation
+    3. Assess quality
+    4. Verify understanding
+    5. Rewrite if needed
+
+    Args:
+        state: Current state (should have educational fields accessible)
+
+    Returns:
+        Next node name in educational flow
+    """
+    # Create educational wrapper for safe field access
+    from derivatives_gpt_core.core.state.state_factory import create_educational_state
+    wrapped = create_educational_state(state)
+
+    # Check if we have an explanation already
+    explanation = wrapped.get_field("explanation_text")
+
+    if not explanation:
+        # Need to generate explanation
+        # First check if we need RAG
+        rag_sources = wrapped.get_field("rag_sources")
+
+        if not rag_sources:
+            logger.info("📚 Educational agent: Need RAG retrieval")
+            return "educational_rag_retrieval"
+        else:
+            logger.info("✍️ Educational agent: Generate explanation")
+            return "generate_explanation"
+
+    # We have an explanation - check quality
+    quality_score = wrapped.get_field("explanation_quality_score", 0)
+
+    if quality_score == 0:
+        # Need to assess quality
+        logger.info("🔍 Educational agent: Assess explanation quality")
+        return "assess_explanation_quality"
+
+    elif quality_score < 0.7:
+        # Quality too low - check attempts
+        attempts = wrapped.get_field("explanation_attempt_count", 0)
+
+        if attempts >= 3:
+            logger.warning("⚠️ Educational agent: Max attempts reached, returning current explanation")
+            return "finalize_explanation"
+        else:
+            logger.info("🔄 Educational agent: Rewrite explanation (quality too low)")
+            return "rewrite_explanation"
+
+    # Quality is good - check if user understanding verified
+    understanding_score = wrapped.get_field("user_understanding_score")
+
+    if understanding_score is None:
+        # Need to verify understanding
+        verification_questions = wrapped.get_field("verification_questions", [])
+
+        if not verification_questions:
+            logger.info("❓ Educational agent: Generate verification questions")
+            return "generate_verification_questions"
+        else:
+            logger.info("✅ Educational agent: Explanation complete, awaiting user response")
+            return "finalize_explanation"
+
+    # Understanding verified
+    logger.info("✅ Educational agent: Complete")
+    return "finalize_explanation"
+
+
+def route_after_explanation_quality(state: OptionPricingState) -> NodeName:
+    """
+    Route after explanation quality assessment.
+
+    Routes:
+    - High quality (≥0.7) → verify_understanding
+    - Low quality (<0.7) → rewrite_explanation (if attempts < max)
+    - Max attempts → finalize (accept current)
+
+    Args:
+        state: State with explanation_quality_score
+
+    Returns:
+        Next node name
+    """
+    from derivatives_gpt_core.core.state.state_factory import create_educational_state
+    wrapped = create_educational_state(state)
+
+    quality_score = wrapped.get_field("explanation_quality_score", 0)
+    attempts = wrapped.get_field("explanation_attempt_count", 0)
+
+    if quality_score >= 0.7:
+        logger.info(f"✅ Explanation quality good ({quality_score:.2f}), proceeding to verification")
+        return "generate_verification_questions"
+    elif attempts >= 3:
+        logger.warning(f"⚠️ Max attempts reached, accepting current explanation (quality: {quality_score:.2f})")
+        return "finalize_explanation"
+    else:
+        logger.info(f"🔄 Explanation quality low ({quality_score:.2f}), rewriting (attempt {attempts + 1}/3)")
+        return "rewrite_explanation"
+
+
+# ============================================================================
+# PRICING AGENT ROUTING
+# ============================================================================
+
+def route_pricing_query(state: OptionPricingState) -> NodeName:
+    """
+    Routing within pricing agent flow.
+
+    Pricing flow:
+    1. Extract parameters
+    2. Validate inputs
+    3. Decompose strategy
+    4. Create execution plan
+    5. Execute tasks
+    6. Narrate results
+
+    Args:
+        state: Current state (should have pricing fields accessible)
+
+    Returns:
+        Next node name in pricing flow
+    """
+    # Create pricing wrapper for safe field access
+    from derivatives_gpt_core.core.state.state_factory import create_pricing_state
+    wrapped = create_pricing_state(state)
+
+    # Check if parameters extracted
+    spot_price = wrapped.get_field("spot_price")
+    strike_price = wrapped.get_field("strike_price")
+
+    if not spot_price or not strike_price:
+        # Need to extract parameters
+        attempts = wrapped.get_field("extraction_attempts", 0)
+
+        if attempts >= 3:
+            logger.warning("⚠️ Pricing agent: Max extraction attempts, cannot price")
+            return "recognize_but_refuse"
+
+        logger.info("📝 Pricing agent: Extract parameters")
+        return "extract_parameters"
+
+    # Parameters extracted - check validation
+    validation_errors = wrapped.get_field("validation_errors", [])
+
+    if validation_errors:
+        # Validation failed
+        clarification_attempts = wrapped.get_field("clarification_attempts", 0)
+
+        if clarification_attempts >= 3:
+            logger.warning("⚠️ Pricing agent: Max clarification attempts, cannot price")
+            return "recognize_but_refuse"
+
+        logger.info("❓ Pricing agent: Need clarification")
+        return "clarify_parameters"
+
+    # Check if validated (not just no errors, but actually validated)
+    if wrapped.get_field("validation_attempt", 0) == 0:
+        logger.info("✔️ Pricing agent: Validate inputs")
+        return "validate_inputs"
+
+    # Validated - check execution plan
+    execution_plan = wrapped.get_field("execution_plan")
+
+    if not execution_plan:
+        # Need to decompose and plan
+        logger.info("🔨 Pricing agent: Decompose and plan")
+        return "decompose_strategy"
+
+    # Check if can execute
+    can_execute = wrapped.get_field("can_execute")
+
+    if can_execute is False:
+        logger.warning("⚠️ Pricing agent: Cannot execute this option type")
+        return "recognize_but_refuse"
+
+    # Check execution results
+    execution_results = wrapped.get_field("execution_results")
+
+    if not execution_results:
+        logger.info("⚙️ Pricing agent: Execute tasks")
+        return "execute_tasks"
+
+    # Check if we need to aggregate (multi-leg)
+    strategy_type = wrapped.get_field("strategy_type", "single")
+
+    if strategy_type != "single":
+        option_price = wrapped.get_field("option_price")
+        if option_price is None:
+            logger.info("🔢 Pricing agent: Aggregate multi-leg results")
+            return "aggregate_results"
+
+    # Everything done - narrate
+    logger.info("📢 Pricing agent: Narrate results")
+    return "narrate_results"
+
+
+def route_after_extraction(state: OptionPricingState) -> NodeName:
+    """
+    Route after parameter extraction.
+
+    Dual-mode routing:
+    - Extraction successful → validate
+    - Extraction failed + evaluation mode → fail fast
+    - Extraction failed + production mode → clarify with user
+    - Max attempts exceeded → fail
+
+    Args:
+        state: State with extraction_successful
+
+    Returns:
+        Next node name
+    """
+    from derivatives_gpt_core.core.state.state_factory import create_pricing_state
+    wrapped = create_pricing_state(state)
+
+    extraction_successful = wrapped.get_field("extraction_successful", False)
+    attempts = wrapped.get_field("extraction_attempts", 0)
+    is_eval_mode = wrapped.get_field("is_evaluation_mode", False)
+
+    # Check max attempts
+    if attempts >= 3:
+        logger.error(f"💥 Max extraction attempts (3) exceeded")
+        return "recognize_but_refuse"
+
+    if extraction_successful:
+        logger.info("✅ Extraction successful, proceeding to validation")
+        return "validate_inputs"
+
+    # Extraction failed
+    if is_eval_mode:
+        logger.info("💥 Extraction failed in evaluation mode, failing fast")
+        return "recognize_but_refuse"
+    else:
+        logger.info("❓ Extraction failed, asking user for clarification")
+        return "clarify_parameters"
+
+
+def route_after_validation(state: OptionPricingState) -> NodeName:
+    """
+    Route after parameter validation.
+
+    Routes:
+    - Validation passed → decompose_strategy
+    - Validation failed + attempts < max → clarify_parameters
+    - Validation failed + attempts >= max → recognize_but_refuse
+    - Critical errors → recognize_but_refuse
+
+    Args:
+        state: State with validation_errors
+
+    Returns:
+        Next node name
+    """
+    from derivatives_gpt_core.core.state.state_factory import create_pricing_state
+    wrapped = create_pricing_state(state)
+
+    validation_errors = wrapped.get_field("validation_errors", [])
+    clarification_attempts = wrapped.get_field("clarification_attempts", 0)
+
+    if not validation_errors:
+        logger.info("✅ Validation passed, decomposing strategy")
+        return "decompose_strategy"
+
+    # Check if errors are critical (not just warnings)
+    has_critical_errors = any("critical" in err.lower() for err in validation_errors)
+
+    if has_critical_errors:
+        logger.error("💥 Critical validation errors, cannot proceed")
+        return "recognize_but_refuse"
+
+    # Check attempts
+    if clarification_attempts >= 3:
+        logger.warning("⚠️ Max clarification attempts exceeded")
+        return "recognize_but_refuse"
+
+    logger.info("❓ Validation failed, requesting clarification")
+    return "clarify_parameters"
+
+
+def route_after_decomposition(state: OptionPricingState) -> NodeName:
+    """
+    Route after strategy decomposition.
+
+    Routes:
+    - Can execute → create_execution_plan
+    - Cannot execute → recognize_but_refuse
+
+    Args:
+        state: State with can_execute
+
+    Returns:
+        Next node name
+    """
+    from derivatives_gpt_core.core.state.state_factory import create_pricing_state
+    wrapped = create_pricing_state(state)
+
+    can_execute = wrapped.get_field("can_execute")
+
+    # BUG FIX: Check for explicit False, not just falsy (None should be treated as True)
+    # If can_execute is explicitly False, refuse. Otherwise (True or None), proceed.
+    if can_execute is False:
+        logger.warning("⚠️ Cannot execute this option type")
+        return "recognize_but_refuse"
+    else:
+        logger.info("✅ Strategy decomposed, creating execution plan")
+        return "create_execution_plan"
+
+
+def route_after_execution(state: OptionPricingState) -> NodeName:
+    """
+    Route after task execution.
+
+    Routes:
+    - Single option → narrate_results
+    - Multi-leg strategy → aggregate_results
+
+    Args:
+        state: State with strategy_type and execution_results
+
+    Returns:
+        Next node name
+    """
+    from derivatives_gpt_core.core.state.state_factory import create_pricing_state
+    wrapped = create_pricing_state(state)
+
+    strategy_type = wrapped.get_field("strategy_type", "single")
+
+    if strategy_type == "single":
+        logger.info("📊 Single option, proceeding to narration")
+        return "narrate_results"
+    else:
+        logger.info("🔢 Multi-leg strategy, aggregating results")
+        return "aggregate_results"
+
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+def should_transfer_to_pricing(state: OptionPricingState) -> bool:
+    """
+    Check if educational agent should transfer to pricing agent.
+
+    This happens when user asks a pricing question while in educational flow.
+
+    Args:
+        state: Current state
+
+    Returns:
+        True if should transfer to pricing
+    """
+    # Check if latest message indicates pricing intent
+    messages = state.messages
+    if not messages:
+        return False
+
+    latest_message = messages[-1]
+    detection = detect_agent_from_message(latest_message)
+
+    return detection.agent_type == "pricing" and detection.confidence > 0.6
+
+
+def should_transfer_to_educational(state: OptionPricingState) -> bool:
+    """
+    Check if pricing agent should transfer to educational agent.
+
+    This happens when user asks for explanation during pricing flow.
+
+    Args:
+        state: Current state
+
+    Returns:
+        True if should transfer to educational
+    """
+    # Check if latest message indicates educational intent
+    messages = state.messages
+    if not messages:
+        return False
+
+    latest_message = messages[-1]
+    detection = detect_agent_from_message(latest_message)
+
+    return detection.agent_type == "educational" and detection.confidence > 0.6
+
+
+def get_agent_from_state(state: OptionPricingState) -> Literal["educational", "pricing", "unified"]:
+    """
+    Get the current agent type from state.
+
+    Args:
+        state: Current state
+
+    Returns:
+        Agent type: "educational", "pricing", or "unified"
+    """
+    if state.current_agent:
+        return state.current_agent
+
+    if state.detected_agent_type:
+        return state.detected_agent_type
+
+    # Detect from response_type
+    if state.response_type == "explain_concept":
+        return "educational"
+    elif state.response_type == "can_price":
+        return "pricing"
+
+    return "unified"
+
+
+def log_routing_decision(
+    state: OptionPricingState,
+    source_node: str,
+    target_node: str,
+    reason: str
+):
+    """
+    Log a routing decision for debugging.
+
+    Args:
+        state: Current state
+        source_node: Source node name
+        target_node: Target node name
+        reason: Reason for routing decision
+    """
+    agent = get_agent_from_state(state)
+    logger.info(
+        f"[{agent.upper()}] Routing: {source_node} → {target_node} ({reason})"
+    )

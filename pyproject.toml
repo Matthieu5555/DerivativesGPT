@@ -1,0 +1,80 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "derivatives-gpt"
+version = "0.1.0"
+description = "LangGraph-powered agent for pricing options"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiosqlite>=0.21.0",
+    "chainlit>=2.8.0,<3.0.0",
+    "chromadb>=1.2.1",
+    "faiss-cpu>=1.7.4",
+    "google-cloud-aiplatform>=1.68.0,<2.0.0",
+    "google-cloud-storage>=2.18.0,<3.0.0",
+    # "google-generativeai>=0.3.0",          # REMOVED: Conflicts with langchain-google-genai
+    "langchain>=0.3.0,<0.4.0",
+    "langchain-community>=0.3.31",
+    "langchain-core>=0.3.0,<0.4.0",
+    "langchain-google-genai>=2.1.0,<3.0.0", # This package will pull in its own dependencies
+    "langchain-google-vertexai>=2.1.2",
+    "langchain-openai>=0.2.0,<0.3.0",
+    "langchain-text-splitters>=0.0.1",
+    "langgraph>=1.0.0,<2.0.0",
+    "langgraph-api>=0.5.4,<0.6.0",
+    "langgraph-checkpoint-sqlite>=2.0.0,<3.0.0",
+    "langgraph-cli[inmem]>=0.1.5", # <-- ADDED THIS LINE
+    "langsmith>=0.1.0,<1.0.0",
+    "matplotlib>=3.7.0,<4.0.0",
+    "numpy>=2.0.0,<3.0.0",
+    "pandas>=2.3.3,<3.0.0",
+    "plotly>=5.0.0,<6.0.0",
+    "pydantic>=2.9.0,<3.0.0",
+    "pydantic-settings>=2.5.0,<3.0.0",
+    "python-dotenv>=1.0.0,<2.0.0",
+    "pyyaml>=6.0.3",
+    "rank-bm25>=0.2.2",
+    "scipy>=1.14.0,<2.0.0",
+    "tavily-python>=0.7.12",
+    "tenacity>=8.2.0",
+    "tqdm>=4.65.0",
+    "yfinance>=0.2.66",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-asyncio>=0.26.0",
+    "black>=24.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.0.0",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["derivatives_gpt_core"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+]
