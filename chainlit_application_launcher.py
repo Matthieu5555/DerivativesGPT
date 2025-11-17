@@ -37,7 +37,7 @@ async def _get_graph():
     if graph is None:
         try:
             # Use the multi-agent orchestrator graph for proper follow-up handling
-            graph = build_orchestrator_graph()
+            graph = await build_orchestrator_graph()
             logger.info("Multi-agent orchestrator graph initialized with follow-up detection")
         except ValueError as e:
             raise RuntimeError(
@@ -209,32 +209,15 @@ async def main(message: cl.Message) -> None:
         chart_displayed = False
         run_id = None
 
-        # Get previous state from checkpointer to preserve conversation context
-        checkpointer = await get_checkpointer()
-        previous_state = await checkpointer.aget(config)
-
         # Build input with conversation context
         input_messages = [HumanMessage(content=message.content)]
-
-        # Preserve conversation context from previous state if it exists
         input_dict = {"messages": input_messages}
-        if previous_state and "channel_values" in previous_state:
-            prev_values = previous_state["channel_values"]
-            # Preserve critical conversation context fields
-            if "last_agent" in prev_values:
-                input_dict["last_agent"] = prev_values["last_agent"]
-            if "last_topic" in prev_values:
-                input_dict["last_topic"] = prev_values["last_topic"]
-            if "conversation_depth" in prev_values:
-                input_dict["conversation_depth"] = prev_values["conversation_depth"]
-            # Log for debugging
-            logger.debug(f"Preserved context: last_agent={input_dict.get('last_agent')}, depth={input_dict.get('conversation_depth')}")
 
         # Use ainvoke instead of astream_events since orchestrator doesn't stream
         # The orchestrator returns complete messages from agents
         import asyncio
 
-        # Invoke the orchestrator
+        # Invoke the orchestrator with checkpointer in config
         final_response = await current_graph.ainvoke(input_dict, config)
 
         # Extract and display the response with simulated streaming

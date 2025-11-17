@@ -1,0 +1,132 @@
+{
+  "book_name": "credit-derivatives-trading-investing-and-risk-management",
+  "book_start": 0,
+  "book_end": 905767,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "Credit Debt and Other Traditional Credit Instruments",
+      "start_pos": 0,
+      "end_pos": 2972,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 2,
+      "title": "Default and Recovery Data; Transition Matrices; Historical Pricing",
+      "start_pos": 2972,
+      "end_pos": 98350,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 3,
+      "title": "Asset Swaps and Asset Swap Spread; z-Spread",
+      "start_pos": 98350,
+      "end_pos": 112814,
+      "confidence": 0.7,
+      "detection_method": "partial_title_only"
+    },
+    {
+      "chapter_num": 4,
+      "title": "Liquidity, the Credit Pyramid and Market Data",
+      "start_pos": 112814,
+      "end_pos": 122998,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 5,
+      "title": "Traditional Counterparty Risk Management",
+      "start_pos": 122998,
+      "end_pos": 152556,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 8,
+      "title": "Credit Default Swaps; Product Description and Simple Applications",
+      "start_pos": 152556,
+      "end_pos": 298881,
+      "confidence": 0.98,
+      "detection_method": "missing_page_heuristic"
+    },
+    {
+      "chapter_num": 10,
+      "title": "CDS Deal Examples",
+      "start_pos": 298881,
+      "end_pos": 411281,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 16,
+      "title": "Total Return Swaps",
+      "start_pos": 411281,
+      "end_pos": 416815,
+      "confidence": 0.7,
+      "detection_method": "partial_title_only"
+    },
+    {
+      "chapter_num": 17,
+      "title": "Single Name Book Management",
+      "start_pos": 416815,
+      "end_pos": 453100,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 19,
+      "title": "Portfolio Product Types",
+      "start_pos": 453100,
+      "end_pos": 558762,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 20,
+      "title": "The Normal Copula and Correlation",
+      "start_pos": 558762,
+      "end_pos": 658503,
+      "confidence": 0.7,
+      "detection_method": "partial_title_only"
+    },
+    {
+      "chapter_num": 22,
+      "title": "Valuation and Hedging",
+      "start_pos": 658503,
+      "end_pos": 760346,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 27,
+      "title": "Mathematical Model and Systems Validation",
+      "start_pos": 760346,
+      "end_pos": 768535,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 28,
+      "title": "System Implementation",
+      "start_pos": 768535,
+      "end_pos": 905767,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 29,
+    "detected_chapters": 14,
+    "detection_rate": 0.4827586206896552,
+    "methods_used": [
+      "missing_page_heuristic",
+      "gap_filler",
+      "partial_title_only",
+      "partial_title_markdown",
+      "aggressive_fuzzy",
+      "high_confidence_markdown"
+    ]
+  }
+}

@@ -1,0 +1,177 @@
+{
+  "book_name": "Quantitative Finance With Python",
+  "book_start": 0,
+  "book_end": 1538758,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "Setting the Stage: Quant Landscape",
+      "start_pos": 37450,
+      "end_pos": 91924,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 2,
+      "title": "Theoretical Underpinnings of Quant Modeling: Modelingthe Risk Neutral Measure",
+      "start_pos": 91924,
+      "end_pos": 217422,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 4,
+      "title": "Python Programming Environment",
+      "start_pos": 217422,
+      "end_pos": 243357,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 5,
+      "title": "Programming Concepts in Python",
+      "start_pos": 243357,
+      "end_pos": 314160,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 6,
+      "title": "Working with Financial Datasets",
+      "start_pos": 314160,
+      "end_pos": 365398,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 7,
+      "title": "Model Validation",
+      "start_pos": 365398,
+      "end_pos": 385311,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 8,
+      "title": "Stochastic Models",
+      "start_pos": 385311,
+      "end_pos": 449284,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 9,
+      "title": "Options Pricing Techniques for European Options",
+      "start_pos": 449284,
+      "end_pos": 520089,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 10,
+      "title": "Options Pricing Techniques for Exotic Options",
+      "start_pos": 520089,
+      "end_pos": 611195,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 11,
+      "title": "Greeks and Options Trading",
+      "start_pos": 611195,
+      "end_pos": 688046,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 12,
+      "title": "Extraction of Risk Neutral Densities",
+      "start_pos": 688046,
+      "end_pos": 716471,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 13,
+      "title": "Interest Rate Markets",
+      "start_pos": 716471,
+      "end_pos": 839289,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 14,
+      "title": "Credit Markets",
+      "start_pos": 839289,
+      "end_pos": 940106,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 15,
+      "title": "Foreign Exchange Markets",
+      "start_pos": 940106,
+      "end_pos": 1021070,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 16,
+      "title": "Equity & Commodity Markets",
+      "start_pos": 1021070,
+      "end_pos": 1074922,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 17,
+      "title": "Portfolio Construction & Optimization Techniques",
+      "start_pos": 1074922,
+      "end_pos": 1162455,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 18,
+      "title": "Modeling Expected Returns and Covariance Matrices",
+      "start_pos": 1162455,
+      "end_pos": 1216146,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 19,
+      "title": "Risk Management",
+      "start_pos": 1216146,
+      "end_pos": 1266169,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 20,
+      "title": "Quantitative Trading Models",
+      "start_pos": 1266169,
+      "end_pos": 1386225,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 21,
+      "title": "Incorporating Machine Learning Techniques",
+      "start_pos": 1386225,
+      "end_pos": 1538758,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 21,
+    "detected_chapters": 20,
+    "detection_rate": 0.9523809523809523,
+    "methods_used": [
+      "gap_filler",
+      "partial_title_markdown",
+      "high_confidence_markdown"
+    ]
+  }
+}

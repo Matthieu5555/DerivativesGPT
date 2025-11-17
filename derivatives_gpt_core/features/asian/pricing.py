@@ -73,44 +73,66 @@ def calculate_geometric_asian_option_price(
         raise InvalidParameterError(f"Strike price must be positive, got {strike_price}")
     if time_to_expiry_years <= 0:
         raise InvalidParameterError(f"Time must be positive, got {time_to_expiry_years}")
-    if not (0.01 <= volatility <= 2.0):
-        raise InvalidParameterError(f"Volatility must be 0.01-2.0, got {volatility}")
+    if volatility < 0:
+        raise InvalidParameterError(f"Volatility cannot be negative, got {volatility}")
+    if volatility > 2.0:
+        raise InvalidParameterError(f"Volatility unreasonably high (>200%), got {volatility}")
     if option_type not in ("call", "put"):
         raise InvalidParameterError(f"Option type must be call/put, got {option_type}")
     if num_observations < 2:
         raise InvalidParameterError(f"Need at least 2 observations, got {num_observations}")
 
+    # Edge case: Zero volatility - deterministic average
+    if volatility < 0.0001:  # Effectively zero
+        # With zero volatility, the average is the forward price
+        forward_price = spot_price * np.exp((risk_free_rate - dividend_yield) * time_to_expiry_years)
+        discount_factor = np.exp(-risk_free_rate * time_to_expiry_years)
+
+        if option_type == "call":
+            return float(max(0.0, forward_price - strike_price) * discount_factor)
+        else:  # put
+            return float(max(0.0, strike_price - forward_price) * discount_factor)
+
+    # Edge case: Very small time to expiry - average converges to spot
+    if time_to_expiry_years < 0.001 / 365:  # Less than ~8 hours
+        if option_type == "call":
+            return float(max(0.0, spot_price - strike_price))
+        else:  # put
+            return float(max(0.0, strike_price - spot_price))
+
     # Adjust volatility for geometric averaging
     # The geometric mean has lower volatility than individual observations
-    sigma_adj = volatility * np.sqrt((2 * num_observations + 1) / (6 * (num_observations + 1)))
+    # For discrete averaging with n observations (Kemna-Vorst formula)
+    n = num_observations
+    sigma_adj = volatility * np.sqrt((n + 1) * (2 * n + 1) / (6 * n * n))
 
-    # Adjust drift (expected return)
+    # Adjust drift (expected return) for discrete geometric averaging
     mu = risk_free_rate - dividend_yield
-    mu_adj = 0.5 * (mu - 0.5 * volatility ** 2 + sigma_adj ** 2)
+    # Adjusted drift for geometric average (Kemna-Vorst)
+    mu_adj = ((n + 1) / (2 * n)) * (mu - 0.5 * volatility ** 2) + 0.5 * sigma_adj ** 2
 
     # Calculate modified d1 and d2
     sqrt_t = np.sqrt(time_to_expiry_years)
 
+    # Note: mu_adj already includes the 0.5 * sigma_adj^2 term
     d1 = (
         np.log(spot_price / strike_price)
-        + (mu_adj + 0.5 * sigma_adj ** 2) * time_to_expiry_years
+        + mu_adj * time_to_expiry_years
     ) / (sigma_adj * sqrt_t)
 
     d2 = d1 - sigma_adj * sqrt_t
 
-    # Discount factor
-    discount_factor = np.exp(-risk_free_rate * time_to_expiry_years)
-
-    # Calculate price based on option type
+    # Calculate price based on option type (using correct discounting)
+    # The discount is already embedded in the Black-Scholes framework
     if option_type == "call":
-        price = discount_factor * (
-            spot_price * np.exp(mu_adj * time_to_expiry_years) * norm.cdf(d1)
-            - strike_price * norm.cdf(d2)
+        price = (
+            spot_price * np.exp((mu_adj - risk_free_rate) * time_to_expiry_years) * norm.cdf(d1)
+            - strike_price * np.exp(-risk_free_rate * time_to_expiry_years) * norm.cdf(d2)
         )
     else:  # put
-        price = discount_factor * (
-            strike_price * norm.cdf(-d2)
-            - spot_price * np.exp(mu_adj * time_to_expiry_years) * norm.cdf(-d1)
+        price = (
+            strike_price * np.exp(-risk_free_rate * time_to_expiry_years) * norm.cdf(-d2)
+            - spot_price * np.exp((mu_adj - risk_free_rate) * time_to_expiry_years) * norm.cdf(-d1)
         )
 
     return float(price)

@@ -1,0 +1,56 @@
+{
+  "book_name": "fx-options-and-structured-products",
+  "book_start": 0,
+  "book_end": 647324,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "Foreign Exchange Options",
+      "start_pos": 2792,
+      "end_pos": 209903,
+      "confidence": 0.95,
+      "detection_method": "exact_with_keyword"
+    },
+    {
+      "chapter_num": 2,
+      "title": "Structured Products",
+      "start_pos": 209903,
+      "end_pos": 371368,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 3,
+      "title": "Practical Matters",
+      "start_pos": 371368,
+      "end_pos": 418614,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 4,
+      "title": "Hedge Accounting under IAS 39",
+      "start_pos": 418614,
+      "end_pos": 567716,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 5,
+      "title": "Foreign Exchange Markets",
+      "start_pos": 567716,
+      "end_pos": 647324,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 5,
+    "detected_chapters": 5,
+    "detection_rate": 1.0,
+    "methods_used": [
+      "partial_title_markdown",
+      "exact_with_keyword"
+    ]
+  }
+}

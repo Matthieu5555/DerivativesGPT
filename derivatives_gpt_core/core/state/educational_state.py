@@ -90,6 +90,22 @@ class EducationalConversationState(BaseModel):
         description="LLM reasoning for topic continuity classification"
     )
 
+    # === HUMAN-IN-THE-LOOP UNDERSTANDING CHECKS ===
+    awaiting_user_understanding: bool = Field(
+        default=False,
+        description="Whether agent asked user to explain their understanding and is awaiting response"
+    )
+
+    user_explained_understanding: bool = Field(
+        default=False,
+        description="Whether user's last message was explaining their understanding (vs asking new question)"
+    )
+
+    understanding_check_count: int = Field(
+        default=0,
+        description="Number of understanding checks performed on current topic"
+    )
+
     model_config = {"arbitrary_types_allowed": True}
 
     def reset_for_new_topic(self, new_topic: str) -> None:
@@ -107,6 +123,10 @@ class EducationalConversationState(BaseModel):
         self.awaiting_user_followup = False
         self.followup_count = 0
         self.topic_continuity_checked = False
+        # Reset understanding check fields
+        self.awaiting_user_understanding = False
+        self.user_explained_understanding = False
+        self.understanding_check_count = 0
         # DON'T reset is_same_topic - it's already been set by classification
 
     def mark_followup(self) -> None:

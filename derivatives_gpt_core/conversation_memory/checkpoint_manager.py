@@ -1,7 +1,9 @@
 """Conversation memory with SQLite checkpointing."""
 
 import json
+import sqlite3
 import aiosqlite
+from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from pathlib import Path
@@ -26,6 +28,7 @@ if not hasattr(JsonPlusSerializer, 'dumps'):
 
 
 _checkpointer: AsyncSqliteSaver | None = None
+_sync_checkpointer: SqliteSaver | None = None
 
 
 async def get_checkpointer() -> AsyncSqliteSaver:
@@ -44,3 +47,21 @@ async def get_checkpointer() -> AsyncSqliteSaver:
         _checkpointer = AsyncSqliteSaver(conn)
 
     return _checkpointer
+
+
+def get_checkpointer_sync() -> SqliteSaver:
+    """
+    Get or create sync SQLite checkpointer.
+
+    Used for graph compilation (checkpointer attached at compile time).
+    """
+    global _sync_checkpointer
+
+    if _sync_checkpointer is None:
+        settings = get_settings()
+        db_path = Path(settings.checkpoint_db_path)
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        conn = sqlite3.connect(str(db_path), check_same_thread=False)
+        _sync_checkpointer = SqliteSaver(conn)
+
+    return _sync_checkpointer

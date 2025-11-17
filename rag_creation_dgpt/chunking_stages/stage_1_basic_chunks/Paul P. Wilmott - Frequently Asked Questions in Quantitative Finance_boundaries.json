@@ -1,0 +1,130 @@
+{
+  "book_name": "Paul P. Wilmott - Frequently Asked Questions in Quantitative Finance",
+  "book_start": 0,
+  "book_end": 749335,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "The Quantitative Finance Timeline",
+      "start_pos": 12055,
+      "end_pos": 44442,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 2,
+      "title": "FAQS",
+      "start_pos": 44442,
+      "end_pos": 303769,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 3,
+      "title": "The Financial Modellers' Manifesto",
+      "start_pos": 303769,
+      "end_pos": 311266,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 4,
+      "title": "Essays",
+      "start_pos": 311266,
+      "end_pos": 386200,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 5,
+      "title": "The Commonest Mistakes in Quantitative Finance: A Dozen Basic Lessons in Commonsense for Quants and Risk Managers and the Traders Who Rely on Them",
+      "start_pos": 386200,
+      "end_pos": 487359,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 6,
+      "title": "The Most Popular Probability Distributions and Their Uses in Finance",
+      "start_pos": 487359,
+      "end_pos": 494155,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 7,
+      "title": "Twelve Different Ways to Derive Black-Scholes",
+      "start_pos": 494155,
+      "end_pos": 519608,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 8,
+      "title": "Models and Equations",
+      "start_pos": 519608,
+      "end_pos": 544673,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 9,
+      "title": "The Black-Scholes Formula and the Greeks",
+      "start_pos": 544673,
+      "end_pos": 557421,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 10,
+      "title": "Common Contracts",
+      "start_pos": 557421,
+      "end_pos": 593277,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 11,
+      "title": "Popular Quant Books",
+      "start_pos": 593277,
+      "end_pos": 601140,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 12,
+      "title": "The Most Popular Search Words and Phrases on Wilmott.com",
+      "start_pos": 601140,
+      "end_pos": 633207,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 13,
+      "title": "Brainteasers",
+      "start_pos": 633207,
+      "end_pos": 674147,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 14,
+      "title": "Paul & Dominic's Guide to Getting a Quant Job",
+      "start_pos": 674147,
+      "end_pos": 749335,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 14,
+    "detected_chapters": 14,
+    "detection_rate": 1.0,
+    "methods_used": [
+      "gap_filler",
+      "high_confidence_markdown",
+      "partial_title_markdown",
+      "aggressive_fuzzy"
+    ]
+  }
+}

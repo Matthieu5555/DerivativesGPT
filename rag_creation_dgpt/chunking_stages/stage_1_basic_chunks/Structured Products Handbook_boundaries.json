@@ -1,0 +1,48 @@
+{
+  "book_name": "Structured Products Handbook",
+  "book_start": 0,
+  "book_end": 304462,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "GENERAL OVERVIEW",
+      "start_pos": 4221,
+      "end_pos": 13437,
+      "confidence": 0.7529411764705882,
+      "detection_method": "fuzzy_matching"
+    },
+    {
+      "chapter_num": 3,
+      "title": "PRODUCTS OF INTEREST RATES",
+      "start_pos": 13437,
+      "end_pos": 93852,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 4,
+      "title": "PRODUCTS OF EQUITIES DERIVATIVES",
+      "start_pos": 93852,
+      "end_pos": 205003,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 5,
+      "title": "PRODUCTS OF FOREIGN CURRENCIES",
+      "start_pos": 205003,
+      "end_pos": 304462,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 5,
+    "detected_chapters": 4,
+    "detection_rate": 0.8,
+    "methods_used": [
+      "high_confidence_markdown",
+      "fuzzy_matching"
+    ]
+  }
+}

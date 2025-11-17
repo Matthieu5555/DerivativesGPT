@@ -309,14 +309,55 @@ async def extract_parameters(state: PricingState) -> Dict[str, Any]:
         if validated_params.risk_free_rate is not None:
             response_dict["risk_free_rate"] = float(validated_params.risk_free_rate)
 
-        # IMPORTANT: Use the classified option_type, not the extracted one
-        # The classifier knows about american_call, digital_call, etc.
-        # The parameter extractor only knows about call/put
-        if state.option_type_classified:
+        # IMPORTANT: Construct product_type from style + direction
+        # Priority: 1) Extracted option_style, 2) option_type_classified, 3) Default to European
+        if validated_params.option_type is not None:
+            direction = validated_params.option_type  # "call" or "put"
+
+            # Check if option_style was explicitly extracted (NEW!)
+            if hasattr(validated_params, 'option_style') and validated_params.option_style:
+                style = validated_params.option_style.lower()
+                if style == "american":
+                    product_type = f"american_{direction}"
+                elif style == "digital":
+                    product_type = f"digital_{direction}"
+                elif style in ("asian", "geometric_asian"):
+                    product_type = f"geometric_asian_{direction}"
+                elif style == "european":
+                    product_type = f"vanilla_european_{direction}"
+                else:
+                    product_type = f"vanilla_european_{direction}"
+                    logger.warning(f"Unknown style '{style}', defaulting to vanilla European")
+                logger.info(f"Using explicitly extracted option_style: {style}")
+
+            # Fall back to classification if no explicit style
+            elif state.option_type_classified:
+                classified = state.option_type_classified.lower()
+
+                # Handle different classification formats
+                if classified in ("american", "american_call", "american_put"):
+                    product_type = f"american_{direction}"
+                elif classified in ("digital", "digital_call", "digital_put"):
+                    product_type = f"digital_{direction}"
+                elif classified in ("asian", "geometric_asian", "geometric_asian_call", "geometric_asian_put"):
+                    product_type = f"geometric_asian_{direction}"
+                elif "vanilla" in classified or classified in ("call", "put", "european"):
+                    product_type = f"vanilla_european_{direction}"
+                else:
+                    # Unknown classification - default to vanilla
+                    product_type = f"vanilla_european_{direction}"
+                    logger.warning(f"Unknown classification '{classified}', defaulting to vanilla")
+            else:
+                # No style or classification - default to vanilla European
+                product_type = f"vanilla_european_{direction}"
+                logger.info("No option style specified, defaulting to European")
+
+            response_dict["option_type"] = direction  # Keep direction for backward compat
+            response_dict["product_type"] = product_type  # Full product type for pricing
+            logger.info(f"Constructed product_type: {product_type} from style='{getattr(validated_params, 'option_style', None)}' classification='{state.option_type_classified}' and direction='{direction}'")
+        elif state.option_type_classified:
+            # Have classification but no direction extracted - use classification as-is
             response_dict["option_type"] = state.option_type_classified
-        elif validated_params.option_type is not None:
-            # Fallback: use extracted type only if no classification exists
-            response_dict["option_type"] = validated_params.option_type
 
         # Instrument node - SUCCESS
         instrument_node(

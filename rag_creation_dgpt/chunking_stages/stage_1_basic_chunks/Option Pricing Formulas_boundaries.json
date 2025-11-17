@@ -1,0 +1,121 @@
+{
+  "book_name": "Option Pricing Formulas",
+  "book_start": 0,
+  "book_end": 563793,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "Black-Scholes-Merton",
+      "start_pos": 31962,
+      "end_pos": 53327,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 2,
+      "title": "Black-Scholes-Merton Greeks",
+      "start_pos": 53327,
+      "end_pos": 123092,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 3,
+      "title": "Analytical Formulas for American Options",
+      "start_pos": 123092,
+      "end_pos": 130822,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 4,
+      "title": "Exotic Options-Single Asset",
+      "start_pos": 130822,
+      "end_pos": 197118,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 5,
+      "title": "Exotic Options on Two Assets",
+      "start_pos": 197118,
+      "end_pos": 212677,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 6,
+      "title": "Black-Scholes-Merton Adjustments and Alternatives",
+      "start_pos": 212677,
+      "end_pos": 264017,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 7,
+      "title": "Trees and Finite Difference Methods",
+      "start_pos": 264017,
+      "end_pos": 343998,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 8,
+      "title": "Monte Carlo Simulation",
+      "start_pos": 343998,
+      "end_pos": 376035,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 9,
+      "title": "Options on Stocks That Pay Discrete Dividends",
+      "start_pos": 376035,
+      "end_pos": 413474,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 10,
+      "title": "Commodity and Energy Options",
+      "start_pos": 413474,
+      "end_pos": 463656,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 12,
+      "title": "Volatility and Correlation",
+      "start_pos": 463656,
+      "end_pos": 484893,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 13,
+      "title": "Distributions",
+      "start_pos": 484893,
+      "end_pos": 498758,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 14,
+      "title": "Some Useful Formulas",
+      "start_pos": 498758,
+      "end_pos": 563793,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 14,
+    "detected_chapters": 13,
+    "detection_rate": 0.9285714285714286,
+    "methods_used": [
+      "gap_filler",
+      "partial_title_markdown",
+      "high_confidence_markdown"
+    ]
+  }
+}

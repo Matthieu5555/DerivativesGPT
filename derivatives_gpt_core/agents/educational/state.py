@@ -9,8 +9,8 @@ Inherits from BaseAgentState and adds educational-specific fields:
 - Conversation tracking (topic continuity, follow-ups)
 """
 
-from typing import Literal
-from pydantic import Field
+from typing import Literal, Any
+from pydantic import Field, field_validator
 
 from derivatives_gpt_core.agents.shared.base_state import BaseAgentState
 from derivatives_gpt_core.core.state.educational_state import EducationalConversationState
@@ -77,3 +77,22 @@ class EducationalState(BaseAgentState):
         default_factory=EducationalConversationState,
         description="Educational conversation tracking: topic continuity, mode, follow-ups"
     )
+
+    @field_validator('educational_context', mode='before')
+    @classmethod
+    def deserialize_educational_context(cls, v: Any) -> EducationalConversationState:
+        """
+        Deserialize educational_context from dict to EducationalConversationState.
+
+        When state is passed from orchestrator → educational agent,
+        educational_context is a dict (from BaseAgentState). This validator
+        converts it back to an object.
+        """
+        if v is None:
+            return EducationalConversationState()
+        elif isinstance(v, dict):
+            return EducationalConversationState(**v)
+        elif isinstance(v, EducationalConversationState):
+            return v
+        else:
+            return EducationalConversationState()

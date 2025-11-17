@@ -41,6 +41,11 @@ async def generate_explanation(state: EducationalState) -> dict:
     previous_attempts = state.explanation_attempt_count or 0
     conversation_mode = state.educational_context.conversation_mode or "initial_explanation"
 
+    # Log mode for debugging
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Generating explanation in {conversation_mode} mode")
+
     # Build prompt (pure function)
     prompt = build_explanation_prompt(
         query=user_query,

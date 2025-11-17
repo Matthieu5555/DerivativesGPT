@@ -19,7 +19,7 @@ async def main():
     print("=" * 60)
 
     # Build the orchestrator graph
-    graph = build_orchestrator_graph()
+    graph = await build_orchestrator_graph()
 
     print("\n1. Testing Initial Explanation (should show Iron Condor format)...")
     result = await graph.ainvoke(

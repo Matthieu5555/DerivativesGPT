@@ -44,6 +44,22 @@ class ParameterExtraction(BaseModel):
             "Extract the direction only. Auto-fix layer will validate."
         )
     )
+    option_style: Optional[str] = Field(
+        None,
+        description=(
+            "Option style if explicitly mentioned: 'american', 'european', 'digital', 'asian', 'barrier'. "
+            "Only extract if user explicitly says 'American option', 'European option', 'Barrier option', etc. "
+            "Leave as None if not specified (will default to European)."
+        )
+    )
+    # Barrier option specific parameters
+    barrier_level: Optional[float] = Field(None, description="Barrier price level for barrier options")
+    barrier_type: Optional[str] = Field(
+        None,
+        description="Barrier type: 'down-out', 'down-in', 'up-out', 'up-in'. Extract from phrases like 'down-and-out', 'knock-in', etc."
+    )
+    rebate: Optional[float] = Field(None, description="Rebate amount paid if barrier is hit (for knock-out options)")
+
     extraction_successful: bool = Field(..., description="Whether extraction found all required fields")
     missing_info: List[str] = Field(default_factory=list, description="List of missing required fields")
     is_multi_asset: bool = Field(default=False, description="Whether this is a multi-asset request")

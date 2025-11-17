@@ -1,0 +1,9 @@
+{
+  "total_chunks": 4918,
+  "detected_chapter_chunks": 4797,
+  "gap_chunks": 121,
+  "summaries_generated": 4918,
+  "unique_summaries": 139,
+  "avg_summary_length": 562.5313135420903,
+  "success_rate": 100.0
+}

@@ -1,0 +1,25 @@
+{
+  "total_chunks": 4918,
+  "unique_books": 11,
+  "unique_chapters": 24,
+  "unique_sections": 131,
+  "avg_text_length": 1772.5591703944692,
+  "min_text_length": 11,
+  "max_text_length": 9899,
+  "chunks_by_book": {
+    "Advanced Stochastic Models, Risk Assessment, and Portfolio Optimization_ The Ideal Risk, Uncertainty, and Performa": 264,
+    "Exotic Options & Hybrids": 522,
+    "Introduction to the Mathematics of Financial Derivatives": 531,
+    "Monte Carlo Methods in Financial Engineering": 551,
+    "Numerical Solution of Stochastic Differential Equations": 373,
+    "Option Pricing Formulas": 303,
+    "Paul P. Wilmott - Frequently Asked Questions in Quantitative Finance": 429,
+    "Quantitative Finance With Python": 893,
+    "Structured Products Handbook": 164,
+    "credit-derivatives-trading-investing-and-risk-management": 523,
+    "fx-options-and-structured-products": 365
+  },
+  "index_type": "IndexFlatIP",
+  "similarity_metric": "cosine (via inner product of normalized vectors)",
+  "ready_for_embedding": true
+}

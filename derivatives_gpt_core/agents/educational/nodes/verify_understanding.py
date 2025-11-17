@@ -54,14 +54,20 @@ async def verify_understanding(state: EducationalState) -> dict:
         # Fallback questions if parsing fails
         questions = ["Can you explain this concept in your own words?"]
 
-    # DON'T show verification questions to user (per user feedback)
-    # Just return the explanation without appending questions
-    # Store questions in state for potential future use, but don't display them
+    # Human-in-the-loop: Ask user to explain their understanding
+    # Append understanding check prompt to explanation
+    understanding_prompt = (
+        "\n\n---\n\n"
+        "**Now it's your turn:** Can you explain back to me what you understood? "
+        "This helps me see if I explained it clearly and where we might need to dig deeper."
+    )
+
+    explanation_with_prompt = explanation + understanding_prompt
 
     # Return immutable state updates
     return {
         "verification_questions": questions,
-        "messages": [AIMessage(content=explanation)],
+        "messages": [AIMessage(content=explanation_with_prompt)],
     }
 
 

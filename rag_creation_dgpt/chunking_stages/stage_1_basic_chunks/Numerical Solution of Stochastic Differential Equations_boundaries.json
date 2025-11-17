@@ -1,0 +1,107 @@
+{
+  "book_name": "Numerical Solution of Stochastic Differential Equations",
+  "book_start": 0,
+  "book_end": 713341,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "Probability and Statistics",
+      "start_pos": 50018,
+      "end_pos": 150637,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 3,
+      "title": "Ito Stochastic Calculus",
+      "start_pos": 150637,
+      "end_pos": 238919,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 4,
+      "title": "Stochastic Differential Equations",
+      "start_pos": 238919,
+      "end_pos": 272290,
+      "confidence": 0.7232876712328767,
+      "detection_method": "fuzzy_matching"
+    },
+    {
+      "chapter_num": 5,
+      "title": "Stochastic Taylor Expansions",
+      "start_pos": 272290,
+      "end_pos": 287600,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 6,
+      "title": "Modelling with StochasticDifferential Equations",
+      "start_pos": 287600,
+      "end_pos": 323607,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 7,
+      "title": "Applications of Stochastic Differential Equations",
+      "start_pos": 323607,
+      "end_pos": 402500,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 8,
+      "title": "Time Discrete Approximation of Deterministic Differential Equations",
+      "start_pos": 402500,
+      "end_pos": 428887,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 10,
+      "title": "Strong Taylor Approximations",
+      "start_pos": 428887,
+      "end_pos": 436511,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 11,
+      "title": "Explicit Strong Approximations",
+      "start_pos": 436511,
+      "end_pos": 459629,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 12,
+      "title": "Implicit Strong Approximations",
+      "start_pos": 459629,
+      "end_pos": 674200,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 16,
+      "title": "Variance Reduction Methods",
+      "start_pos": 674200,
+      "end_pos": 713341,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 17,
+    "detected_chapters": 11,
+    "detection_rate": 0.6470588235294118,
+    "methods_used": [
+      "gap_filler",
+      "fuzzy_matching",
+      "partial_title_markdown",
+      "aggressive_fuzzy",
+      "high_confidence_markdown"
+    ]
+  }
+}

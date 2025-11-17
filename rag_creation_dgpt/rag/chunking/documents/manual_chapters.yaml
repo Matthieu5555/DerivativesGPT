@@ -1,0 +1,220 @@
+# Manual chapter definitions for books where automatic detection fails
+#
+# This file provides fallback chapter structures when the multi-strategy auto-detection
+# in chapter_detection.py cannot reliably identify chapters.
+#
+# Format: Book filename (with extension) mapped to list of chapter titles in order
+#
+# Usage:
+# 1. Run stage_1_basic_chunking.py and check validation_report.json
+# 2. If a book has missing/wrong chapters, add its correct structure here
+# 3. Use exact chapter titles as they appear in the book (case-sensitive)
+# 4. Don't include "Chapter X" prefix if the book doesn't use it consistently
+# 5. Re-run stage_1 and the manual config will be used
+
+# FX Options and Structured Products
+# This book uses "* 1 Title" format which confuses the auto-detector
+fx-options-and-structured-products.mmd:
+  - "Foreign Exchange Options"
+  - "Structured Products"
+  - "Practical Matters"
+  - "Hedge Accounting under IAS 39"
+  - "Foreign Exchange Markets"
+
+# Advanced Stochastic Models, Risk Assessment, and Portfolio Optimization
+# Uses mix of numbered and unnumbered chapters with inconsistent formatting
+# Corrected from TOC data provided
+Advanced Stochastic Models, Risk Assessment, and Portfolio Optimization_ The Ideal Risk, Uncertainty, and Performa.mmd:
+  - "Concepts of Probability"
+  - "Optimization"
+  - "Probability Metrics"
+  - "Ideal Probability Metrics"
+  - "Choice under Uncertainty"
+  - "Risk and Uncertainty"
+  - "Average Value-at-Risk"
+  - "Optimal Portfolios"
+  - "Benchmark Tracking Problems"
+  - "Performance Measures"
+
+# Credit Derivatives Trading, Investing and Risk Management
+# Standard chapter format but may have OCR issues
+# Corrected from TOC data provided
+credit-derivatives-trading-investing-and-risk-management.mmd:
+  - "Credit Debt and Other Traditional Credit Instruments"
+  - "Default and Recovery Data; Transition Matrices; Historical Pricing"
+  - "Asset Swaps and Asset Swap Spread; z-Spread"
+  - "Liquidity, the Credit Pyramid and Market Data"
+  - "Traditional Counterparty Risk Management"
+  - "Credit Portfolios and Portfolio Risk"
+  - "Introduction to Credit Derivatives"
+  - "Credit Default Swaps; Product Description and Simple Applications"
+  - "Valuation and Risk: Basic Concepts and the Default and Recovery Model"
+  - "CDS Deal Examples"
+  - "CDS/Bond Basis Trading"
+  - "Forward CDS; Back-to-Back CDS, Mark to Market and CDS Unwind"
+  - "Credit-Linked Notes"
+  - "Digital or 'Fixed Recovery' CDS"
+  - "Spread Options, Callable/Puttable Bonds, Callable Asset Swaps, Callable Default Swaps"
+  - "Total Return Swaps"
+  - "Single Name Book Management"
+  - "CDS and Simulation"
+  - "Portfolio Product Types"
+  - "The Normal Copula and Correlation"
+  - "Correlation in Practice"
+  - "Valuation and Hedging"
+  - "Alternative Copulas"
+  - "Correlation Portfolio Management"
+  - "Single Name CDS"
+  - "Counterparty CDSs"
+  - "Mathematical Model and Systems Validation"
+  - "System Implementation"
+  - "Cause and Effect: Credit Derivatives and the Crisis of 2007"
+
+# Exotic Options and Hybrids
+# Two-part structure with many subsections
+# Corrected from TOC data provided
+Exotic Options & Hybrids.mmd:
+  - "Basic Instruments"
+  - "The World of Structured Products"
+  - "Vanilla Options"
+  - "Volatility, Skew and Term Structure"
+  - "Option Sensitivities: Greeks"
+  - "Strategies Involving Options"
+  - "Correlation"
+  - "Dispersion"
+  - "Dispersion Options"
+  - "Barrier Options"
+  - "Digitals"
+  - "Autocallable Structures"
+  - "The Cliquet Family"
+  - "More Cliquets and Related Structures"
+  - "Mountain Range Options"
+  - "Volatility Derivatives"
+  - "Asset Classes (I)"
+  - "Asset Classes (II)"
+  - "Structuring Hybrid Derivatives"
+  - "Pricing Hybrid Derivatives"
+  - "Dynamic Strategies and Thematic Indices"
+
+# Monte Carlo Methods in Financial Engineering
+# Using list from provided TOC data
+Monte Carlo Methods in Financial Engineering.mmd:
+  - "Foundations"
+  - "Generating Random Numbers and Random Variables"
+  - "Generating Sample Paths"
+  - "Variance Reduction Techniques"
+  - "Quasi-Monte Carlo"
+  - "Discretization Methods"
+  - "Estimating Sensitivities"
+  - "Pricing American Options"
+  - "Applications in Risk Management"
+
+# Introduction to the Mathematics of Financial Derivatives
+# Added from provided TOC data
+Introduction to the Mathematics of Financial Derivatives.mmd:
+  - "Financial Derivatives-A Brief Introduction"
+  - "A Primer on the Arbitrage Theorem"
+  - "Review of Deterministic Calculus"
+  - "Pricing Derivatives: Models and Notation"
+  - "Tools in Probability Theory"
+  - "Martingales and Martingale Representations"
+  - "Differentiation in Stochastic Environments"
+  - "The Wiener Process, Lévy Processes, and Rare Events in Financial Markets"
+  - "Integration in Stochastic Environments"
+  - "ITÔ's Lemma"
+  - "The Dynamics of Derivative Prices"
+  - "Pricing Derivative Products: Partial Differential Equations"
+  - "PDEs and PIDEs-An Application"
+  - "Pricing Derivative Products: Equivalent Martingale Measures"
+  - "Equivalent Martingale Measures"
+  - "New Results and Tools for Interest-Sensitive Securities"
+  - "Arbitrage Theorem in a New Setting"
+  - "Modeling Term Structure and Related Concepts"
+  - "Classical and HJM Approach to Fixed Income"
+  - "Classical PDE Analysis for Interest Rate Derivatives"
+
+# Numerical Solution of Stochastic Differential Equations
+Numerical Solution of Stochastic Differential Equations.mmd:
+  - "Probability and Statistics"
+  - "Probability and Stochastic Processes"
+  - "Ito Stochastic Calculus"
+  - "Stochastic Differential Equations"
+  - "Stochastic Taylor Expansions"
+  - "Modelling with StochasticDifferential Equations"
+  - "Applications of Stochastic Differential Equations"
+  - "Time Discrete Approximation of Deterministic Differential Equations"
+  - "Introduction to Stochastic Time Discrete Approximation"
+  - "Strong Taylor Approximations"
+  - "Explicit Strong Approximations"
+  - "Implicit Strong Approximations"
+  - "Selected Applicationsof Strong Approximations"
+  - "Weak Taylor Approximations"
+  - "Explicit and Implicit Weak Approximations"
+  - "Variance Reduction Methods"
+  - "Selected Applications of Weak Approximations"
+
+# Option Pricing Formulas
+Option Pricing Formulas.mmd:
+  - "Black-Scholes-Merton"
+  - "Black-Scholes-Merton Greeks"
+  - "Analytical Formulas for American Options"
+  - "Exotic Options-Single Asset"
+  - "Exotic Options on Two Assets"
+  - "Black-Scholes-Merton Adjustments and Alternatives"
+  - "Trees and Finite Difference Methods"
+  - "Monte Carlo Simulation"
+  - "Options on Stocks That Pay Discrete Dividends"
+  - "Commodity and Energy Options"
+  - "Interest Rate Derivatives"
+  - "Volatility and Correlation"
+  - "Distributions"
+  - "Some Useful Formulas"
+
+# Paul P. Wilmott - Frequently Asked Questions in Quantitative Finance
+Paul P. Wilmott - Frequently Asked Questions in Quantitative Finance.mmd:
+  - "The Quantitative Finance Timeline"
+  - "FAQS"
+  - "The Financial Modellers' Manifesto"
+  - "Essays"
+  - "The Commonest Mistakes in Quantitative Finance: A Dozen Basic Lessons in Commonsense for Quants and Risk Managers and the Traders Who Rely on Them"
+  - "The Most Popular Probability Distributions and Their Uses in Finance"
+  - "Twelve Different Ways to Derive Black-Scholes"
+  - "Models and Equations"
+  - "The Black-Scholes Formula and the Greeks"
+  - "Common Contracts"
+  - "Popular Quant Books"
+  - "The Most Popular Search Words and Phrases on Wilmott.com"
+  - "Brainteasers"
+  - "Paul & Dominic's Guide to Getting a Quant Job"
+
+# Quantitative Finance With Python
+Quantitative Finance With Python.mmd:
+  - "Setting the Stage: Quant Landscape"
+  - "Theoretical Underpinnings of Quant Modeling: Modelingthe Risk Neutral Measure"
+  - "Theoretical Underpinnings of Quant Modeling: Modelingthe Physical Measure"
+  - "Python Programming Environment"
+  - "Programming Concepts in Python"
+  - "Working with Financial Datasets"
+  - "Model Validation"
+  - "Stochastic Models"
+  - "Options Pricing Techniques for European Options"
+  - "Options Pricing Techniques for Exotic Options"
+  - "Greeks and Options Trading"
+  - "Extraction of Risk Neutral Densities"
+  - "Interest Rate Markets"
+  - "Credit Markets"
+  - "Foreign Exchange Markets"
+  - "Equity & Commodity Markets"
+  - "Portfolio Construction & Optimization Techniques"
+  - "Modeling Expected Returns and Covariance Matrices"
+  - "Risk Management"
+  - "Quantitative Trading Models"
+  - "Incorporating Machine Learning Techniques"
+
+# Structured Products Handbook
+Structured Products Handbook.mmd:
+  - "GENERAL OVERVIEW"
+  - "INTRODUCTION"
+  - "PRODUCTS OF INTEREST RATES"
+  - "PRODUCTS OF EQUITIES DERIVATIVES"
+  - "PRODUCTS OF FOREIGN CURRENCIES"

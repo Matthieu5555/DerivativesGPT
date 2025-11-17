@@ -29,6 +29,8 @@ from derivatives_gpt_core.agents.educational.nodes.critique_explanation import c
 from derivatives_gpt_core.agents.educational.nodes.rewrite_explanation import rewrite_explanation
 from derivatives_gpt_core.agents.educational.nodes.verify_understanding import verify_understanding
 from derivatives_gpt_core.agents.educational.nodes.reflect_on_learning import reflect_on_learning
+from derivatives_gpt_core.agents.educational.nodes.assess_comprehension import assess_comprehension
+from derivatives_gpt_core.agents.educational.nodes.build_on_understanding import build_on_understanding
 
 # Import shared nodes
 from derivatives_gpt_core.agents.shared.nodes.augment_with_context import augment_with_context
@@ -95,22 +97,24 @@ def build_educational_agent_graph() -> StateGraph:
         mode = edu_context.conversation_mode
 
         if mode == "initial_explanation":
-            # After initial explanation, mark as awaiting followup
-            updated_context = edu_context.dict()
-            edu_context_obj = state.educational_context.__class__(**updated_context)
-            edu_context_obj.mark_followup()
+            # After initial explanation, mark as awaiting user understanding
+            updated_context = edu_context.model_dump()
+            updated_context["awaiting_user_understanding"] = True  # Human-in-the-loop: awaiting their explanation
+            updated_context["awaiting_user_followup"] = True
+            updated_context["conversation_mode"] = "followup_conversation"  # Switch mode for next turn
 
-            logger.info("Initial explanation complete, awaiting user follow-up")
+            logger.info("Initial explanation complete, awaiting user understanding check")
             return {
                 "response_type": "explain_concept",
                 "current_agent": "educational",
-                "educational_context": edu_context_obj
+                "educational_context": updated_context
             }
         else:
             logger.info("Follow-up answer complete")
             return {
                 "response_type": "explain_concept",
-                "current_agent": "educational"
+                "current_agent": "educational",
+                "educational_context": edu_context.model_dump()
             }
 
     # Add nodes
@@ -122,7 +126,9 @@ def build_educational_agent_graph() -> StateGraph:
     graph.add_node("assess_quality", critique_explanation)
     graph.add_node("rewrite_explanation", rewrite_explanation)
     graph.add_node("verify_understanding", verify_understanding)
-    graph.add_node("reflect_on_learning", reflect_on_learning)  # NEW: Learning reflection
+    graph.add_node("reflect_on_learning", reflect_on_learning)
+    graph.add_node("assess_comprehension", assess_comprehension)  # NEW: Assess user understanding
+    graph.add_node("build_on_understanding", build_on_understanding)  # NEW: Build on user understanding
     graph.add_node("finalize", finalize_explanation)
 
     # ========================================================================
@@ -132,8 +138,28 @@ def build_educational_agent_graph() -> StateGraph:
     # Entry point
     graph.set_entry_point("classify_topic")
 
-    # From classify_topic → check_rag (always)
-    graph.add_edge("classify_topic", "check_rag")
+    # From classify_topic → route based on whether user is explaining understanding
+    def route_after_topic_classification(state: EducationalState) -> Literal["assess_comprehension", "check_rag"]:
+        """
+        Route based on whether this is an understanding check response:
+        - If user is explaining their understanding → assess_comprehension
+        - Otherwise → normal flow (check_rag)
+        """
+        if state.educational_context.user_explained_understanding:
+            logger.info("Understanding check response detected - routing to assessment")
+            return "assess_comprehension"
+        else:
+            logger.info("Regular question - routing to normal flow")
+            return "check_rag"
+
+    graph.add_conditional_edges(
+        "classify_topic",
+        route_after_topic_classification,
+        {
+            "assess_comprehension": "assess_comprehension",
+            "check_rag": "check_rag"
+        }
+    )
 
     # From check_rag → conditional (rag needed?)
     def route_after_rag_check(state: EducationalState) -> Literal["rag_retrieval", "web_search"]:
@@ -241,6 +267,13 @@ def build_educational_agent_graph() -> StateGraph:
 
     # From reflection → finalize (when used)
     graph.add_edge("reflect_on_learning", "finalize")
+
+    # === HUMAN-IN-THE-LOOP FLOW ===
+    # From assess_comprehension → build_on_understanding
+    graph.add_edge("assess_comprehension", "build_on_understanding")
+
+    # From build_on_understanding → finalize
+    graph.add_edge("build_on_understanding", "finalize")
 
     # From finalize → END
     graph.add_edge("finalize", END)

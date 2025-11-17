@@ -37,6 +37,11 @@ class PricingState(BaseAgentState):
     risk_free_rate: float | None = None
     option_type: str | None = None  # "call", "put", "american_call", etc.
 
+    # === BARRIER OPTION PARAMETERS ===
+    barrier_level: float | None = None  # Barrier price level
+    barrier_type: str | None = None  # "down-out", "down-in", "up-out", "up-in"
+    rebate: float | None = None  # Payment if knocked out
+
     # === MULTI-ASSET PARAMETERS ===
     is_multi_asset: bool | None = Field(
         default=None,

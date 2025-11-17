@@ -1,0 +1,178 @@
+{
+  "book_name": "Introduction to the Mathematics of Financial Derivatives",
+  "book_start": 0,
+  "book_end": 962152,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "Financial Derivatives-A Brief Introduction",
+      "start_pos": 7300,
+      "end_pos": 34743,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 2,
+      "title": "A Primer on the Arbitrage Theorem",
+      "start_pos": 34743,
+      "end_pos": 86940,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 3,
+      "title": "Review of Deterministic Calculus",
+      "start_pos": 86940,
+      "end_pos": 120422,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 4,
+      "title": "Pricing Derivatives: Models and Notation",
+      "start_pos": 120422,
+      "end_pos": 141389,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 5,
+      "title": "Tools in Probability Theory",
+      "start_pos": 141389,
+      "end_pos": 181499,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 6,
+      "title": "Martingales and Martingale Representations",
+      "start_pos": 181499,
+      "end_pos": 236114,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 7,
+      "title": "Differentiation in Stochastic Environments",
+      "start_pos": 236114,
+      "end_pos": 256651,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 8,
+      "title": "The Wiener Process, L\u00e9vy Processes, and Rare Events in Financial Markets",
+      "start_pos": 256651,
+      "end_pos": 299313,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 9,
+      "title": "Integration in Stochastic Environments",
+      "start_pos": 299313,
+      "end_pos": 375500,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 10,
+      "title": "IT\u00d4's Lemma",
+      "start_pos": 375500,
+      "end_pos": 379654,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 11,
+      "title": "The Dynamics of Derivative Prices",
+      "start_pos": 379654,
+      "end_pos": 408136,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 12,
+      "title": "Pricing Derivative Products: Partial Differential Equations",
+      "start_pos": 408136,
+      "end_pos": 450396,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 13,
+      "title": "PDEs and PIDEs-An Application",
+      "start_pos": 450396,
+      "end_pos": 484120,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 14,
+      "title": "Pricing Derivative Products: Equivalent Martingale Measures",
+      "start_pos": 484120,
+      "end_pos": 528096,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 15,
+      "title": "Equivalent Martingale Measures",
+      "start_pos": 528096,
+      "end_pos": 564399,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 16,
+      "title": "New Results and Tools for Interest-Sensitive Securities",
+      "start_pos": 564399,
+      "end_pos": 586682,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 17,
+      "title": "Arbitrage Theorem in a New Setting",
+      "start_pos": 586682,
+      "end_pos": 649964,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 18,
+      "title": "Modeling Term Structure and Related Concepts",
+      "start_pos": 649964,
+      "end_pos": 678671,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 19,
+      "title": "Classical and HJM Approach to Fixed Income",
+      "start_pos": 678671,
+      "end_pos": 729552,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 20,
+      "title": "Classical PDE Analysis for Interest Rate Derivatives",
+      "start_pos": 729552,
+      "end_pos": 962152,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 20,
+    "detected_chapters": 20,
+    "detection_rate": 1.0,
+    "methods_used": [
+      "gap_filler",
+      "partial_title_markdown",
+      "high_confidence_markdown",
+      "aggressive_fuzzy"
+    ]
+  }
+}

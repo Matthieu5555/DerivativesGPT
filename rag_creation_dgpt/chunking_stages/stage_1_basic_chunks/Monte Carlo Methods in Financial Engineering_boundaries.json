@@ -1,0 +1,83 @@
+{
+  "book_name": "Monte Carlo Methods in Financial Engineering",
+  "book_start": 0,
+  "book_end": 996583,
+  "chapters": [
+    {
+      "chapter_num": 2,
+      "title": "Generating Random Numbers and Random Variables",
+      "start_pos": 44357,
+      "end_pos": 158318,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 3,
+      "title": "Generating Sample Paths",
+      "start_pos": 158318,
+      "end_pos": 319721,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 4,
+      "title": "Variance Reduction Techniques",
+      "start_pos": 319721,
+      "end_pos": 546000,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 5,
+      "title": "Quasi-Monte Carlo",
+      "start_pos": 546000,
+      "end_pos": 556251,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 6,
+      "title": "Discretization Methods",
+      "start_pos": 556251,
+      "end_pos": 619600,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 7,
+      "title": "Estimating Sensitivities",
+      "start_pos": 619600,
+      "end_pos": 783988,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 8,
+      "title": "Pricing American Options",
+      "start_pos": 783988,
+      "end_pos": 787225,
+      "confidence": 0.6981818181818182,
+      "detection_method": "fuzzy_matching"
+    },
+    {
+      "chapter_num": 9,
+      "title": "Applications in Risk Management",
+      "start_pos": 787225,
+      "end_pos": 996583,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 9,
+    "detected_chapters": 8,
+    "detection_rate": 0.8888888888888888,
+    "methods_used": [
+      "gap_filler",
+      "fuzzy_matching",
+      "partial_title_markdown",
+      "aggressive_fuzzy",
+      "high_confidence_markdown"
+    ]
+  }
+}

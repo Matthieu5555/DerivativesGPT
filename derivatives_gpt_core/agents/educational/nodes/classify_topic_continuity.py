@@ -43,16 +43,36 @@ async def classify_topic_continuity(state: EducationalState) -> dict:
     previous_topic = edu_context.current_topic
     previous_question = edu_context.last_user_question
     previous_explanation = state.explanation_text  # Include for reference detection
+    awaiting_understanding = edu_context.awaiting_user_understanding
 
-    # SHORT-CIRCUIT: If no previous context exists, this MUST be a new topic
+    # Debug logging
+    logger.info(
+        f"Topic classification context: "
+        f"previous_topic={previous_topic}, "
+        f"awaiting_understanding={awaiting_understanding}, "
+        f"mode={edu_context.conversation_mode}"
+    )
+
+    # SHORT-CIRCUIT 1: If awaiting user understanding check, classify as understanding response
+    if awaiting_understanding:
+        logger.info("User responding to understanding check - classifying as same topic, understanding response")
+        classification = {
+            "is_same_topic": True,
+            "is_financial_related": True,
+            "extracted_topic": previous_topic or "current topic",
+            "reasoning": "User explaining their understanding in response to understanding check",
+            "is_understanding_check_response": True
+        }
+    # SHORT-CIRCUIT 2: If no previous context exists, this MUST be a new topic
     # Don't trust LLM to follow instructions - it hallucinates previous context
-    if previous_topic is None and previous_question is None:
+    elif previous_topic is None and previous_question is None:
         logger.info("First question detected (no previous context) - classifying as new topic")
         classification = {
             "is_same_topic": False,
             "is_financial_related": True,  # Assume financial unless off-topic
             "extracted_topic": "initial question",
-            "reasoning": "First question in conversation - no previous context to follow up on"
+            "reasoning": "First question in conversation - no previous context to follow up on",
+            "is_understanding_check_response": False
         }
     else:
         # Build prompt
@@ -71,6 +91,7 @@ async def classify_topic_continuity(state: EducationalState) -> dict:
         # Parse JSON response
         try:
             classification = _parse_classification_json(classification_text)
+            classification["is_understanding_check_response"] = False  # LLM path is for regular questions
         except (json.JSONDecodeError, ValueError) as e:
             logger.error(f"Failed to parse topic continuity classification: {e}")
             # Fallback: treat as new topic, assume financial-related
@@ -78,7 +99,8 @@ async def classify_topic_continuity(state: EducationalState) -> dict:
                 "is_same_topic": False,
                 "is_financial_related": True,
                 "extracted_topic": "unknown topic",
-                "reasoning": f"Parse error: {str(e)}"
+                "reasoning": f"Parse error: {str(e)}",
+                "is_understanding_check_response": False
             }
 
     # Update educational context
@@ -167,13 +189,19 @@ def _update_educational_context(
     """
     # Create a copy of the context
     from derivatives_gpt_core.core.state.educational_state import EducationalConversationState
-    updated = EducationalConversationState(**edu_context.dict())
+    updated = EducationalConversationState(**edu_context.model_dump())
 
     # Update classification results
     updated.is_same_topic = classification["is_same_topic"]
     updated.is_financial_related = classification["is_financial_related"]
     updated.topic_classification_reasoning = classification["reasoning"]
     updated.topic_continuity_checked = True
+
+    # Handle understanding check responses
+    is_understanding_response = classification.get("is_understanding_check_response", False)
+    if is_understanding_response:
+        updated.user_explained_understanding = True
+        # Keep awaiting_user_understanding = True until build_on_understanding resets it
 
     extracted_topic = classification["extracted_topic"]
 
@@ -186,4 +214,4 @@ def _update_educational_context(
         # New topic
         updated.reset_for_new_topic(extracted_topic)
 
-    return updated
+    return updated.model_dump()

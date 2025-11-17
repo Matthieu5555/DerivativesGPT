@@ -1,0 +1,98 @@
+{
+  "book_name": "Advanced Stochastic Models, Risk Assessment, and Portfolio Optimization_ The Ideal Risk, Uncertainty, and Performa",
+  "book_start": 0,
+  "book_end": 463854,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "Concepts of Probability",
+      "start_pos": 7121,
+      "end_pos": 8290,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 2,
+      "title": "Optimization",
+      "start_pos": 8290,
+      "end_pos": 8656,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 3,
+      "title": "Probability Metrics",
+      "start_pos": 8656,
+      "end_pos": 118070,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 4,
+      "title": "Ideal Probability Metrics",
+      "start_pos": 118070,
+      "end_pos": 157487,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 5,
+      "title": "Choice under Uncertainty",
+      "start_pos": 157487,
+      "end_pos": 206835,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 6,
+      "title": "Risk and Uncertainty",
+      "start_pos": 206835,
+      "end_pos": 256129,
+      "confidence": 0.8,
+      "detection_method": "gap_filler"
+    },
+    {
+      "chapter_num": 7,
+      "title": "Average Value-at-Risk",
+      "start_pos": 256129,
+      "end_pos": 338444,
+      "confidence": 0.6095238095238096,
+      "detection_method": "fuzzy_matching"
+    },
+    {
+      "chapter_num": 8,
+      "title": "Optimal Portfolios",
+      "start_pos": 338444,
+      "end_pos": 360693,
+      "confidence": 0.7200000000000001,
+      "detection_method": "fuzzy_matching"
+    },
+    {
+      "chapter_num": 9,
+      "title": "Benchmark Tracking Problems",
+      "start_pos": 360693,
+      "end_pos": 388136,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 10,
+      "title": "Performance Measures",
+      "start_pos": 388136,
+      "end_pos": 463854,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 10,
+    "detected_chapters": 10,
+    "detection_rate": 1.0,
+    "methods_used": [
+      "gap_filler",
+      "partial_title_markdown",
+      "fuzzy_matching",
+      "high_confidence_markdown"
+    ]
+  }
+}

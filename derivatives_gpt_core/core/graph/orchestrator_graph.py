@@ -20,6 +20,7 @@ Features:
 from langgraph.graph import StateGraph, END
 from typing import Literal
 import logging
+import asyncio
 
 from derivatives_gpt_core.agents.shared.base_state import BaseAgentState
 from derivatives_gpt_core.core.graph.agent_routing import route_to_agent
@@ -30,6 +31,7 @@ from derivatives_gpt_core.core.state.conversation_context import (
     should_maintain_agent,
     enhance_agent_detection_with_context
 )
+from derivatives_gpt_core.conversation_memory.checkpoint_manager import get_checkpointer
 
 # Import classification nodes
 from derivatives_gpt_core.graph_nodes.classify_intent import classify_user_intent
@@ -44,7 +46,7 @@ from derivatives_gpt_core.graph_nodes.response_handlers.offtopic_handler import 
 logger = logging.getLogger(__name__)
 
 
-def build_orchestrator_graph() -> StateGraph:
+async def build_orchestrator_graph() -> StateGraph:
     """
     Build the main orchestrator graph.
 
@@ -130,14 +132,19 @@ Educational Pricing  Off-Topic
                 )
 
         # Enhance detection with context
-        if is_follow_up and state.last_agent:
-            # Override detection to maintain continuity
+        # CRITICAL: Only maintain agent for follow-ups if new detection is ambiguous
+        # If user explicitly requests different task (high confidence), switch agents
+        if is_follow_up and state.last_agent and detection.confidence < 0.75:
+            # Follow-up with ambiguous intent - maintain previous agent for continuity
+            logger.info(f"Ambiguous follow-up (new confidence {detection.confidence:.0%}) - maintaining {state.last_agent}")
             detection.agent_type = state.last_agent
             detection.confidence = 0.9
             detection.reasoning = f"Follow-up to previous {state.last_agent} conversation"
             depth = state.conversation_depth + 1
         else:
-            # New topic or explicit switch
+            # New topic or explicit switch (high confidence different agent)
+            if is_follow_up and detection.confidence >= 0.75:
+                logger.info(f"High-confidence switch (confidence {detection.confidence:.0%}) - changing to {detection.agent_type}")
             depth = 1 if detection.agent_type == state.last_agent else 0
 
         logger.info(
@@ -159,6 +166,9 @@ Educational Pricing  Off-Topic
     async def run_educational_agent(state: BaseAgentState) -> dict:
         """Execute educational agent sub-graph."""
         logger.info("Invoking EDUCATIONAL agent")
+
+        # Log incoming state for debugging
+        logger.debug(f"Educational agent state: educational_context={state.educational_context if hasattr(state, 'educational_context') else None}")
 
         # Execute educational graph
         result = await educational_graph.ainvoke(state)
@@ -224,9 +234,10 @@ Educational Pricing  Off-Topic
     graph.add_edge("pricing_agent", END)
     graph.add_edge("off_topic", END)
 
-    # Compile
-    compiled = graph.compile()
-    logger.info("Orchestrator graph compiled successfully")
+    # Compile with AsyncSqliteSaver for state persistence
+    checkpointer = await get_checkpointer()
+    compiled = graph.compile(checkpointer=checkpointer)
+    logger.info("Orchestrator graph compiled successfully with async checkpointer")
 
     return compiled
 

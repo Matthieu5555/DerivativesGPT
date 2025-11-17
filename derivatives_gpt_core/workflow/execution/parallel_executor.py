@@ -25,12 +25,17 @@ async def execute_parallel_group(
 
     Args:
         tasks: List of task dicts
-        state: Current pricing state
+        state: Current pricing state (with updated values from previous groups)
         market_data_provider: Optional injected provider
 
     Returns:
         List of task results
     """
+    # Log current state for debugging
+    logger.debug(f"Executing group with state snapshot: "
+                f"spot={state.spot_price}, vol={state.volatility}, "
+                f"rate={state.risk_free_rate}")
+
     return await asyncio.gather(*[
         execute_task(task, state, market_data_provider) for task in tasks
     ])
@@ -160,6 +165,12 @@ async def execute_plan(
     ```
     """
     # LangSmith Tracing: START
+    logger.info("=" * 50)
+    logger.info("STARTING EXECUTION PLAN")
+    logger.info(f"Initial state: spot={state.spot_price}, "
+               f"vol={state.volatility}, rate={state.risk_free_rate}")
+    logger.info("=" * 50)
+
     try:
         if not state.execution_plan:
             logger.warning("[execute_parallel_tasks] No execution plan | scenario=EMPTY_PLAN")
@@ -212,16 +223,22 @@ async def execute_plan(
                     continue
                 results[result["id"]] = result["output"]
 
-            # Update state IMMEDIATELY after each group completes
-            # Ensures pricing tasks in subsequent groups have access to fetched data
+            # Update state for the NEXT group without mutating the original
+            # This is the key fix: we create a new state copy for the next group
             group_updates = extract_updated_values(results)
-            for key, value in group_updates.items():
-                setattr(state, key, value)
 
-            logger.info(
-                f"State updated after group execution. "
-                f"spot={state.spot_price}, vol={state.volatility}, rate={state.risk_free_rate}"
-            )
+            if group_updates:
+                # Create an updated state for the next group
+                # This ensures next group has the fetched values
+                state = state.model_copy(update=group_updates)
+
+                for key, value in group_updates.items():
+                    logger.info(f"State updated for next group: {key} = {value}")
+
+                logger.info(
+                    f"State snapshot for next group: "
+                    f"spot={state.spot_price}, vol={state.volatility}, rate={state.risk_free_rate}"
+                )
 
         # Collect all updated values for return
         updated_values = extract_updated_values(results)

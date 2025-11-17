@@ -1,0 +1,144 @@
+[
+  {
+    "book": "Advanced Stochastic Models, Risk Assessment, and Portfolio Optimization_ The Ideal Risk, Uncertainty, and Performa",
+    "chunks_created": 264,
+    "yaml_chapters": 10,
+    "detected_chapters": 10,
+    "detection_rate": 1.0,
+    "methods_used": [
+      "gap_filler",
+      "partial_title_markdown",
+      "fuzzy_matching",
+      "high_confidence_markdown"
+    ]
+  },
+  {
+    "book": "Exotic Options & Hybrids",
+    "chunks_created": 522,
+    "yaml_chapters": 21,
+    "detected_chapters": 10,
+    "detection_rate": 0.47619047619047616,
+    "methods_used": [
+      "missing_page_heuristic",
+      "partial_title_only",
+      "partial_title_markdown",
+      "aggressive_fuzzy",
+      "high_confidence_markdown"
+    ]
+  },
+  {
+    "book": "Introduction to the Mathematics of Financial Derivatives",
+    "chunks_created": 531,
+    "yaml_chapters": 20,
+    "detected_chapters": 20,
+    "detection_rate": 1.0,
+    "methods_used": [
+      "gap_filler",
+      "partial_title_markdown",
+      "high_confidence_markdown",
+      "aggressive_fuzzy"
+    ]
+  },
+  {
+    "book": "Monte Carlo Methods in Financial Engineering",
+    "chunks_created": 551,
+    "yaml_chapters": 9,
+    "detected_chapters": 8,
+    "detection_rate": 0.8888888888888888,
+    "methods_used": [
+      "gap_filler",
+      "fuzzy_matching",
+      "partial_title_markdown",
+      "aggressive_fuzzy",
+      "high_confidence_markdown"
+    ]
+  },
+  {
+    "book": "Numerical Solution of Stochastic Differential Equations",
+    "chunks_created": 373,
+    "yaml_chapters": 17,
+    "detected_chapters": 11,
+    "detection_rate": 0.6470588235294118,
+    "methods_used": [
+      "gap_filler",
+      "fuzzy_matching",
+      "partial_title_markdown",
+      "aggressive_fuzzy",
+      "high_confidence_markdown"
+    ]
+  },
+  {
+    "book": "Option Pricing Formulas",
+    "chunks_created": 303,
+    "yaml_chapters": 14,
+    "detected_chapters": 13,
+    "detection_rate": 0.9285714285714286,
+    "methods_used": [
+      "gap_filler",
+      "partial_title_markdown",
+      "high_confidence_markdown"
+    ]
+  },
+  {
+    "book": "Paul P. Wilmott - Frequently Asked Questions in Quantitative Finance",
+    "chunks_created": 429,
+    "yaml_chapters": 14,
+    "detected_chapters": 14,
+    "detection_rate": 1.0,
+    "methods_used": [
+      "gap_filler",
+      "high_confidence_markdown",
+      "partial_title_markdown",
+      "aggressive_fuzzy"
+    ]
+  },
+  {
+    "book": "Quantitative Finance With Python",
+    "chunks_created": 893,
+    "yaml_chapters": 21,
+    "detected_chapters": 20,
+    "detection_rate": 0.9523809523809523,
+    "methods_used": [
+      "gap_filler",
+      "partial_title_markdown",
+      "high_confidence_markdown"
+    ]
+  },
+  {
+    "book": "Structured Products Handbook",
+    "chunks_created": 164,
+    "yaml_chapters": 5,
+    "detected_chapters": 4,
+    "detection_rate": 0.8,
+    "methods_used": [
+      "high_confidence_markdown",
+      "fuzzy_matching"
+    ]
+  },
+  {
+    "book": "credit-derivatives-trading-investing-and-risk-management",
+    "chunks_created": 523,
+    "yaml_chapters": 29,
+    "detected_chapters": 14,
+    "detection_rate": 0.4827586206896552,
+    "methods_used": [
+      "missing_page_heuristic",
+      "gap_filler",
+      "partial_title_only",
+      "partial_title_markdown",
+      "aggressive_fuzzy",
+      "high_confidence_markdown"
+    ]
+  },
+  {
+    "book": "fx-options-and-structured-products",
+    "chunks_created": 365,
+    "yaml_chapters": 5,
+    "detected_chapters": 5,
+    "detection_rate": 1.0,
+    "methods_used": [
+      "partial_title_markdown",
+      "exact_with_keyword"
+    ]
+  }
+]

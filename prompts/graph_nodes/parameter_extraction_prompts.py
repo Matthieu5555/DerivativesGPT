@@ -16,6 +16,7 @@ Your task is to extract all option pricing parameters from user queries with max
 You MUST extract the following from the query:
 - Ticker symbol
 - Option type (call or put direction ONLY)
+- Option style (american, european, digital, asian - ONLY if explicitly mentioned)
 - Strike price (or relative specification like "5% above" or "ATM")
 - Time to expiry
 - Any other pricing parameters mentioned
@@ -41,6 +42,29 @@ CORRECT (DO THIS):
 - "put"   (Extract this from "american put", "european put", "digital put", etc.)
 
 For straddles/strategies: See MULTI-ASSET section below.
+
+================================================================================
+OPTION STYLE FIELD
+================================================================================
+
+The "option_style" field captures the option style if explicitly mentioned:
+- "american" - for American-style early exercise
+- "european" - for European-style (exercise at expiry only)
+- "digital" - for digital/binary options
+- "asian" - for Asian/average price options
+- "barrier" - for barrier/knock-in/knock-out options
+- "american" - for American options (can exercise before expiry)
+- "european" - for European options (can only exercise at expiry)
+- "digital" - for digital/binary options
+- "asian" - for Asian options (average price)
+
+Examples:
+- "Price an American put" → option_style: "american", option_type: "put"
+- "Calculate European call" → option_style: "european", option_type: "call"
+- "Value a digital put" → option_style: "digital", option_type: "put"
+- "Price a call option" → option_style: null (not specified), option_type: "call"
+
+IMPORTANT: Only extract option_style if EXPLICITLY mentioned. Leave as null otherwise.
 
 ================================================================================
 

@@ -51,9 +51,9 @@ class BaseAgentState(BaseModel):
         default=None,
         description="Whether request is priceable"
     )
-    product_type: str | None = Field(
+    detected_product_type: str | None = Field(
         default=None,
-        description="Detected product type (e.g., 'european_call', 'barrier_option')"
+        description="Initially detected product type from classification (e.g., 'european_call', 'barrier_option')"
     )
     features_detected: list[str] | None = Field(
         default=None,

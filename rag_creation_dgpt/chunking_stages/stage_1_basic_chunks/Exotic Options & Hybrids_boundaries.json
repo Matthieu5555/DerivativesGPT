@@ -1,0 +1,99 @@
+{
+  "book_name": "Exotic Options & Hybrids",
+  "book_start": 0,
+  "book_end": 882419,
+  "chapters": [
+    {
+      "chapter_num": 1,
+      "title": "Basic Instruments",
+      "start_pos": 22455,
+      "end_pos": 102447,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 3,
+      "title": "Vanilla Options",
+      "start_pos": 102447,
+      "end_pos": 299300,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 7,
+      "title": "Correlation",
+      "start_pos": 299300,
+      "end_pos": 330555,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 8,
+      "title": "Dispersion",
+      "start_pos": 330555,
+      "end_pos": 357761,
+      "confidence": 1.0,
+      "detection_method": "high_confidence_markdown"
+    },
+    {
+      "chapter_num": 9,
+      "title": "Dispersion Options",
+      "start_pos": 357761,
+      "end_pos": 381858,
+      "confidence": 0.92,
+      "detection_method": "partial_title_markdown"
+    },
+    {
+      "chapter_num": 10,
+      "title": "Barrier Options",
+      "start_pos": 381858,
+      "end_pos": 472900,
+      "confidence": 0.98,
+      "detection_method": "missing_page_heuristic"
+    },
+    {
+      "chapter_num": 11,
+      "title": "Digitals",
+      "start_pos": 472900,
+      "end_pos": 484111,
+      "confidence": 0.5,
+      "detection_method": "aggressive_fuzzy"
+    },
+    {
+      "chapter_num": 12,
+      "title": "Autocallable Structures",
+      "start_pos": 484111,
+      "end_pos": 524380,
+      "confidence": 0.7,
+      "detection_method": "partial_title_only"
+    },
+    {
+      "chapter_num": 13,
+      "title": "The Cliquet Family",
+      "start_pos": 524380,
+      "end_pos": 562773,
+      "confidence": 0.7,
+      "detection_method": "partial_title_only"
+    },
+    {
+      "chapter_num": 14,
+      "title": "More Cliquets and Related Structures",
+      "start_pos": 562773,
+      "end_pos": 882419,
+      "confidence": 0.7,
+      "detection_method": "partial_title_only"
+    }
+  ],
+  "stats": {
+    "yaml_chapters": 21,
+    "detected_chapters": 10,
+    "detection_rate": 0.47619047619047616,
+    "methods_used": [
+      "missing_page_heuristic",
+      "partial_title_only",
+      "partial_title_markdown",
+      "aggressive_fuzzy",
+      "high_confidence_markdown"
+    ]
+  }
+}

@@ -68,12 +68,39 @@ def calculate_digital_option_price(
         raise InvalidParameterError(f"Strike price must be positive, got {strike_price}")
     if time_to_expiry_years <= 0:
         raise InvalidParameterError(f"Time must be positive, got {time_to_expiry_years}")
-    if not (0.01 <= volatility <= 2.0):
-        raise InvalidParameterError(f"Volatility must be 0.01-2.0, got {volatility}")
+    if volatility < 0:
+        raise InvalidParameterError(f"Volatility cannot be negative, got {volatility}")
+    if volatility > 2.0:
+        raise InvalidParameterError(f"Volatility unreasonably high (>200%), got {volatility}")
     if option_type not in ("call", "put"):
         raise InvalidParameterError(f"Option type must be call/put, got {option_type}")
     if payout <= 0:
         raise InvalidParameterError(f"Payout must be positive, got {payout}")
+
+    # Edge case: Zero volatility - deterministic outcome
+    if volatility < 0.0001:  # Effectively zero
+        discount_factor = np.exp(-risk_free_rate * time_to_expiry_years)
+        forward_price = spot_price * np.exp((risk_free_rate - dividend_yield) * time_to_expiry_years)
+
+        if option_type == "call":
+            # Digital call pays if forward price > strike
+            if forward_price > strike_price:
+                return float(payout * discount_factor)
+            else:
+                return 0.0
+        else:  # put
+            # Digital put pays if forward price < strike
+            if forward_price < strike_price:
+                return float(payout * discount_factor)
+            else:
+                return 0.0
+
+    # Edge case: Very small time to expiry - immediate outcome
+    if time_to_expiry_years < 0.001 / 365:  # Less than ~8 hours
+        if option_type == "call":
+            return float(payout if spot_price > strike_price else 0.0)
+        else:  # put
+            return float(payout if spot_price < strike_price else 0.0)
 
     # Calculate d2 from Black-Scholes (this is the risk-neutral probability)
     d2 = (

@@ -45,21 +45,48 @@ async def narrate_execution(state: PricingState) -> Dict[str, Any]:
         # so we don't duplicate those checks here
         if not state.execution_results:
             logger.warning("No execution_results available for narration")
-            fallback_msg = (
-                f"Calculated price: ${state.option_price:.2f}"
-                if state.option_price
-                else "Calculation completed."
-            )
+
+            # Check if we have a price despite no execution results
+            if state.option_price:
+                fallback_msg = f"Calculated price: ${state.option_price:.2f}"
+            else:
+                # Better error message when calculation failed
+                missing_params = []
+                if not state.volatility:
+                    missing_params.append("volatility")
+                if not state.risk_free_rate:
+                    missing_params.append("risk-free rate")
+                if not state.spot_price:
+                    missing_params.append("spot price")
+
+                if missing_params:
+                    fallback_msg = (
+                        f"I couldn't complete the calculation because I need the following parameters:\n"
+                        f"• {'\n• '.join(missing_params)}\n\n"
+                        f"For American options, I need volatility and risk-free rate to use the Bjerksund-Stensland formula.\n"
+                        f"You can provide these values (e.g., 'assume 25% volatility and 4.5% risk-free rate') "
+                        f"or I can estimate them from historical data if you prefer."
+                    )
+                else:
+                    fallback_msg = "Calculation failed due to an execution error. Please try again."
+
             logger.warning("[narrate_execution] FALLBACK | scenario=no_execution_results")
             return {"messages": [AIMessage(content=fallback_msg)]}
 
         narrator_model = get_narrator_llm()
 
-        # Build prompt with execution results data
+        # Build prompt with execution results data - flexible key matching
+        def get_method_from_results(results: Dict, task_prefix: str) -> str:
+            """Find estimation method from results with flexible key matching."""
+            for task_id, output in results.items():
+                if task_id.startswith(task_prefix):
+                    return output.get("method", "not specified")
+            return "not specified"
+
         methods_used = {
-            "volatility": state.execution_results.get("fetch_vol", {}).get("method", "not specified"),
-            "risk_free": state.execution_results.get("fetch_rate", {}).get("method", "not specified"),
-            "pricing_model": "Black-Scholes European option model",
+            "volatility": get_method_from_results(state.execution_results, "fetch_vol"),
+            "risk_free": get_method_from_results(state.execution_results, "fetch_rate"),
+            "pricing_model": "Black-Scholes European option model" if "american" not in str(state.product_type).lower() else "Bjerksund-Stensland approximation",
         }
         
         execution_context = {

@@ -100,7 +100,11 @@ def calculate_american_option_price(
     sqrt_t = np.sqrt(time_to_expiry_years)
     sigma_sqrt_t = volatility * sqrt_t
 
-    # Calculate beta
+    # Calculate beta (with edge case protection)
+    if volatility < 0.001:  # Protect against division by very small volatility
+        # For very low volatility, option approaches intrinsic value
+        return max(0.0, spot_price - strike_price)
+
     beta = (
         (0.5 - dividend_yield / volatility ** 2)
         + np.sqrt(
@@ -109,9 +113,15 @@ def calculate_american_option_price(
         )
     )
 
-    # Calculate B_infinity and B_0
+    # Calculate B_infinity and B_0 (with edge case protection)
     B_inf = beta / (beta - 1) * strike_price
-    B_0 = max(strike_price, risk_free_rate / (risk_free_rate - dividend_yield) * strike_price)
+
+    # Handle edge case when r ≈ q (avoid division by zero)
+    if abs(risk_free_rate - dividend_yield) < 1e-10:
+        # When r = q, use limiting case
+        B_0 = strike_price
+    else:
+        B_0 = max(strike_price, risk_free_rate / (risk_free_rate - dividend_yield) * strike_price)
 
     # Calculate h(T)
     h_t = -(dividend_yield * time_to_expiry_years + 2 * sigma_sqrt_t) * B_0 / (B_inf - B_0)
@@ -119,22 +129,22 @@ def calculate_american_option_price(
     # Calculate critical stock price I
     I = B_0 + (B_inf - B_0) * (1 - np.exp(h_t))
 
-    # If spot >= I, exercise immediately
+    # If spot >= I, exercise immediately (but ensure non-negative)
     if spot_price >= I:
-        return spot_price - strike_price
+        return max(0.0, spot_price - strike_price)
 
     # Calculate alpha
     alpha = (I - strike_price) * I ** (-beta)
 
-    # Calculate d1 terms
+    # Calculate d1 terms (using correct drift: r - q, not just q)
     d1_I = (
         np.log(spot_price / I)
-        + (dividend_yield + 0.5 * volatility ** 2) * time_to_expiry_years
+        + (risk_free_rate - dividend_yield + 0.5 * volatility ** 2) * time_to_expiry_years
     ) / sigma_sqrt_t
 
     d1_K = (
         np.log(spot_price / strike_price)
-        + (dividend_yield + 0.5 * volatility ** 2) * time_to_expiry_years
+        + (risk_free_rate - dividend_yield + 0.5 * volatility ** 2) * time_to_expiry_years
     ) / sigma_sqrt_t
 
     # Calculate option price

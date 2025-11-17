@@ -44,6 +44,27 @@ PRICING_TOOLS = {
         "option_types": ["geometric_asian_call", "geometric_asian_put"],
         "can_price": True,
         "tool_file": "geometric_asian_tool.py"
+    },
+    "price_barrier_option": {
+        "description": "Price barrier options (knock-in/knock-out with single barrier)",
+        "method": "Merton-Reiner analytical formula",
+        "option_types": [
+            "down_out_call", "down_out_put", "down_in_call", "down_in_put",
+            "up_out_call", "up_out_put", "up_in_call", "up_in_put",
+            "barrier_call", "barrier_put", "knock_out", "knock_in"
+        ],
+        "can_price": True,
+        "tool_file": "barrier_option_tool.py"
+    },
+    "price_multi_leg_strategy": {
+        "description": "Price multi-leg option strategies via aggregation",
+        "method": "Sum of individual leg prices",
+        "option_types": [
+            "straddle", "strangle", "call_spread", "put_spread",
+            "butterfly", "iron_condor", "collar", "risk_reversal"
+        ],
+        "can_price": True,
+        "tool_file": "multi_leg_aggregator.py"
     }
 }
 
@@ -56,10 +77,6 @@ CANNOT_PRICE = {
     "arithmetic_asian": {
         "reason": "Requires Monte Carlo simulation (no closed-form solution)",
         "option_types": ["asian_call", "asian_put", "arithmetic_asian_call", "arithmetic_asian_put"]
-    },
-    "barrier": {
-        "reason": "Requires path-dependent simulation with continuous barrier monitoring",
-        "option_types": ["barrier_call", "barrier_put", "knock_in", "knock_out", "up_and_in", "down_and_out"]
     },
     "lookback": {
         "reason": "Requires path-dependent simulation tracking maximum/minimum prices",

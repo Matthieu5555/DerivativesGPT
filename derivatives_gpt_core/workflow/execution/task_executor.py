@@ -185,6 +185,16 @@ async def _execute_pricing_task(
     """Execute option pricing task."""
     option_type = task["params"]["option_type"]
 
+    # Comprehensive diagnostic logging for pricing tasks
+    logger.info(f"PRICING TASK {task_id} STARTING")
+    logger.info(f"  Option type: {option_type}")
+    logger.info(f"  State values:")
+    logger.info(f"    spot_price: {state.spot_price}")
+    logger.info(f"    volatility: {state.volatility}")
+    logger.info(f"    risk_free_rate: {state.risk_free_rate}")
+    logger.info(f"    strike_price (from state): {state.strike_price}")
+    logger.info(f"    time_to_expiry_days: {state.time_to_expiry_days}")
+
     # Extract and normalize strike parameter
     strike_param = task["params"].get("strike")
     if strike_param in ("null", "None"):
@@ -233,21 +243,83 @@ async def _execute_sum_task(
 
 
 def _validate_pricing_parameters(state: BaseAgentState, strike: float) -> None:
-    """Validate all required parameters are present for pricing."""
-    missing = []
-    if not state.spot_price:
-        missing.append("spot_price")
-    if not strike:
-        missing.append("strike")
-    if not state.time_to_expiry_days:
-        missing.append("time_to_expiry_days")
-    if not state.volatility:
-        missing.append("volatility")
-    if not state.risk_free_rate:
-        missing.append("risk_free_rate")
+    """Validate with detailed error reporting for debugging."""
+    validations = {
+        "spot_price": (state.spot_price, state.spot_price is not None and state.spot_price > 0),
+        "strike": (strike, strike is not None and strike > 0),
+        "time_to_expiry_days": (state.time_to_expiry_days,
+                                state.time_to_expiry_days is not None and state.time_to_expiry_days > 0),
+        "volatility": (state.volatility, state.volatility is not None and 0 < state.volatility < 10),
+        "risk_free_rate": (state.risk_free_rate,
+                          state.risk_free_rate is not None and -0.1 < state.risk_free_rate < 1)
+    }
 
-    if missing:
-        raise ValueError(f"Missing required parameters for pricing: {missing}")
+    failures = []
+    for param, (value, is_valid) in validations.items():
+        if not is_valid:
+            failures.append(f"{param}={value}")
+
+    if failures:
+        error_msg = f"Pricing validation failed: {', '.join(failures)}"
+        logger.error(error_msg)
+        logger.error(f"Full state dump: {state.model_dump()}")
+
+        # Check if this is likely a race condition
+        if state.spot_price and not state.volatility:
+            logger.error("LIKELY RACE CONDITION: Spot fetched but volatility missing")
+            logger.error("This suggests pricing ran before all fetches completed")
+        elif state.volatility and not state.spot_price:
+            logger.error("LIKELY RACE CONDITION: Volatility fetched but spot missing")
+            logger.error("This suggests pricing ran before all fetches completed")
+
+        raise ValueError(error_msg)
+
+
+def _calculate_barrier_option_price(
+    option_type: str,
+    state: BaseAgentState,
+    strike: float,
+    time_years: float
+) -> float:
+    """
+    Calculate barrier option price using Merton-Reiner formulas.
+
+    Extracts barrier parameters from state and dispatches to appropriate formula.
+    """
+    from derivatives_gpt_core.features.barrier.pricing import price_barrier_option
+
+    # Extract barrier level from state (should be set during parameter extraction)
+    barrier_level = getattr(state, 'barrier_level', None)
+    if not barrier_level:
+        # Try to infer from state or use a default
+        logger.warning("No barrier level found in state, using 80% of spot for down barrier")
+        barrier_level = state.spot_price * 0.8 if "down" in option_type else state.spot_price * 1.2
+
+    # Map option_type to barrier_type and option direction
+    barrier_type_map = {
+        "down_out_call": ("down-out", "call"),
+        "down_out_put": ("down-out", "put"),
+        "down_in_call": ("down-in", "call"),
+        "down_in_put": ("down-in", "put"),
+        "up_out_call": ("up-out", "call"),
+        "up_out_put": ("up-out", "put"),
+        "up_in_call": ("up-in", "call"),
+        "up_in_put": ("up-in", "put"),
+    }
+
+    barrier_type, option_dir = barrier_type_map.get(option_type, ("down-out", "call"))
+
+    return price_barrier_option(
+        barrier_type=barrier_type,
+        option_type=option_dir,
+        S=state.spot_price,
+        K=strike,
+        H=barrier_level,
+        T=time_years,
+        r=state.risk_free_rate,
+        sigma=state.volatility,
+        rebate=getattr(state, 'rebate', 0.0)
+    )
 
 
 def _calculate_option_price(
@@ -298,6 +370,17 @@ def _calculate_option_price(
         )
         logger.info(f"Priced {option_type} option (geometric Asian): ${price:.2f}")
 
+    elif any(barrier_type in option_type for barrier_type in
+             ["down_out", "down_in", "up_out", "up_in"]):
+        # Handle barrier options
+        price = _calculate_barrier_option_price(
+            option_type=option_type,
+            state=state,
+            strike=strike,
+            time_years=time_years
+        )
+        logger.info(f"Priced {option_type} option (Merton-Reiner): ${price:.2f}")
+
     else:
         # Default to Black-Scholes for vanilla options
         price = calculate_black_scholes_price(
@@ -306,7 +389,7 @@ def _calculate_option_price(
             time_to_expiry_years=time_years,
             volatility=state.volatility,
             risk_free_rate=state.risk_free_rate,
-            option_type=option_type
+            option_type="call" if "call" in option_type else "put"
         )
         logger.info(f"Priced {option_type} option (Black-Scholes): ${price:.2f}")
 
