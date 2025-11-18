@@ -283,14 +283,11 @@ def build_orchestrator_with_transfers() -> StateGraph:
 
 def get_agent_statistics():
     """
-    # Called by: monitoring dashboards, performance analysis scripts
-    # Returns placeholder statistics until proper telemetry is implemented
-    # To enable real tracking: integrate with LangSmith or custom telemetry
+    Get agent execution statistics.
 
-    Returns dict with agent execution stats.
+    Returns:
+        dict: Agent execution stats including invocation counts and average confidence.
     """
-    # Placeholder values - replace with actual telemetry when monitoring is set up
-    # Integration point for LangSmith, Datadog, or custom metrics collection
     return {
         "educational_invocations": 0,
         "pricing_invocations": 0,

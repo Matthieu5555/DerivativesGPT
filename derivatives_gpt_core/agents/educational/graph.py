@@ -17,8 +17,9 @@ Flow Overview:
 """
 
 from langgraph.graph import StateGraph, END
-from typing import Literal
+from typing import Literal, Dict, Any
 import logging
+import asyncio
 
 from derivatives_gpt_core.agents.educational.state import EducationalState
 
@@ -37,6 +38,47 @@ from derivatives_gpt_core.agents.shared.nodes.augment_with_context import augmen
 from derivatives_gpt_core.agents.shared.nodes.web_search import web_search
 
 logger = logging.getLogger(__name__)
+
+
+async def rag_retrieval_with_indicator(state: EducationalState) -> Dict[str, Any]:
+    """
+    Wrapper around augment_with_context that shows loading indicator in Chainlit UI.
+
+    Displays "Retrieving relevant sources..." while RAG retrieval is in progress,
+    then briefly shows result before continuing.
+    """
+    try:
+        import chainlit as cl
+
+        # Show loading indicator
+        loading_msg = cl.Message(content="Retrieving relevant sources...")
+        await loading_msg.send()
+
+        # Call actual RAG retrieval
+        result = await augment_with_context(state)
+
+        # Update indicator with result
+        if result.get("rag_sources"):
+            count = len(result["rag_sources"])
+            loading_msg.content = f"Found {count} relevant sources"
+            await loading_msg.update()
+            await asyncio.sleep(0.3)  # Brief pause for UX
+
+        # Remove loading message
+        await loading_msg.remove()
+
+        return result
+
+    except ImportError:
+        # Chainlit not available (e.g., in tests), just run RAG directly
+        return await augment_with_context(state)
+    except Exception as e:
+        # Clean up loading message on error
+        try:
+            await loading_msg.remove()
+        except:
+            pass
+        raise
 
 
 def build_educational_agent_graph() -> StateGraph:
@@ -120,7 +162,7 @@ def build_educational_agent_graph() -> StateGraph:
     # Add nodes
     graph.add_node("classify_topic", classify_topic_continuity)
     graph.add_node("check_rag", check_rag_status)
-    graph.add_node("rag_retrieval", augment_with_context)
+    graph.add_node("rag_retrieval", rag_retrieval_with_indicator)
     graph.add_node("web_search", web_search)
     graph.add_node("generate_explanation", generate_explanation)
     graph.add_node("assess_quality", critique_explanation)

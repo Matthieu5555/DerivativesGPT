@@ -470,7 +470,6 @@ class AgentStateWrapper:
         """
         messages = self.get_field("messages", [])
 
-        # Future: filter by agent type
         # return [msg for msg in messages if should_include_for_agent(msg, self._agent_type)]
 
         return messages

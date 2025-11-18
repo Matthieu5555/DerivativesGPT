@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 async def _display_chart_if_ticker(ticker: str | None) -> float | None:
     """
-    Display price chart immediately after ticker extraction using bulletproof chart manager.
+    Display price chart immediately after ticker extraction using error-resilient chart manager.
 
     Returns:
         Current spot price (float) if successful, None otherwise
@@ -31,9 +31,9 @@ async def _display_chart_if_ticker(ticker: str | None) -> float | None:
     if not ticker:
         return None
 
-    logger.info(f"Displaying chart for {ticker} using bulletproof chart manager")
+    logger.info(f"Displaying chart for {ticker} using error-resilient chart manager")
 
-    # Use bulletproof chart manager (handles all errors gracefully)
+    # Use error-resilient chart manager (handles all errors gracefully)
     result = await chart_manager.display_chart_async(
         ticker=ticker,
         lookback_days=252,
@@ -82,7 +82,7 @@ async def classify_user_intent(state: BaseAgentState) -> Dict[str, Any]:
     # Get last user message
     user_message = state.messages[-1].content
 
-    # Get cheap classification LLM
+    # Get cost-effective classification LLM
     classification_model = get_classification_llm()
 
     # Classify with JSON output

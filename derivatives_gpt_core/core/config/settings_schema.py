@@ -103,11 +103,11 @@ class Settings(BaseSettings):
     # === RAG SETTINGS ===
     rag_enabled: bool = Field(default=True, description="Enable RAG retrieval")
     rag_index_path: str = Field(
-        default="data/vectorstore/rag_index_structured.faiss",
+        default="databases/vectorstore/rag_index_structured.faiss",
         description="Path to FAISS index"
     )
     rag_metadata_path: str = Field(
-        default="data/vectorstore/metadata_structured.json",
+        default="databases/vectorstore/metadata_structured.json",
         description="Path to metadata JSON"
     )
     rag_bm25_candidate_count: int = Field(

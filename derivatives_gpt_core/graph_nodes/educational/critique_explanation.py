@@ -39,7 +39,7 @@ async def critique_explanation(state: EducationalState) -> dict:
     )
 
     # Get LLM critique
-    llm = get_classification_llm()  # Use cheap model for critique
+    llm = get_classification_llm()  # Use cost-effective model for critique
     response = await llm.ainvoke(prompt)
 
     critique_text = response.content if hasattr(response, "content") else str(response)

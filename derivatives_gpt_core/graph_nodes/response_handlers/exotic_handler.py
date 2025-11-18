@@ -71,10 +71,17 @@ def handle_recognize_but_refuse(state: BaseAgentState) -> Dict[str, Any]:
     )
 
     # Why we can't price it
-    response_parts.append(
-        f"\n\n**Why I can't price this:**\n"
-        f"This product requires {method}."
-    )
+    # Special message for Monte Carlo-heavy options
+    if "monte carlo" in method.lower():
+        response_parts.append(
+            f"\n\n**Why I can't price this:**\n"
+            f"Sorry but the maker of this code does not want to run heavy monte carlo simulations on his raspberry pi."
+        )
+    else:
+        response_parts.append(
+            f"\n\n**Why I can't price this:**\n"
+            f"This product requires {method}."
+        )
 
     # Mention detected exotic features if any
     if features:

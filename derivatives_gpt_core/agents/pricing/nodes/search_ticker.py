@@ -66,6 +66,10 @@ async def search_for_ticker(state: PricingState) -> Dict[str, Any]:
         from derivatives_gpt_core.config import get_settings
 
         settings = get_settings()
+        if not settings.enable_web_search:
+            logger.info("Web search disabled in config, skipping ticker search")
+            return {"skip_ticker_search": True}
+
         if not settings.tavily_api_key:
             logger.warning("Tavily API key not configured, skipping ticker search")
             return {"skip_ticker_search": True}
