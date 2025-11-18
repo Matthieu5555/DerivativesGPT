@@ -5,13 +5,13 @@ LangGraph implementation for the pricing agent with parameter extraction,
 validation, execution, and narration.
 
 Flow:
-  Entry → Extract Parameters → Validate → Decompose → Plan → RAG Retrieval → Execute → Narrate → Exit
+  Entry → RAG Retrieval → Extract Parameters → Validate → Decompose → Plan → Execute → Narrate → Exit
 
 Features:
+- RAG retrieval FIRST to understand derivatives terminology (butterfly, straddle, etc.)
 - Parameter extraction with retries (max 3 attempts)
 - Comprehensive validation with clarification
 - Strategy decomposition for multi-leg options
-- RAG retrieval for educational context citations
 - Parallel task execution
 - Natural language narration of results with source citations
 """
@@ -56,6 +56,8 @@ def build_pricing_agent_graph() -> StateGraph:
     Graph structure:
     ```
     START
+      ↓
+    rag_retrieval (understand derivatives terminology)
       ↓
     extract_parameters
       ↓
@@ -123,8 +125,11 @@ def build_pricing_agent_graph() -> StateGraph:
     # EDGES
     # ========================================================================
 
-    # Entry point
-    graph.set_entry_point("extract_parameters")
+    # Entry point - RAG FIRST to understand derivatives terminology
+    graph.set_entry_point("rag_retrieval")
+
+    # From rag_retrieval → extract_parameters
+    graph.add_edge("rag_retrieval", "extract_parameters")
 
     # From extract_parameters → conditional
     graph.add_conditional_edges(
@@ -158,9 +163,8 @@ def build_pricing_agent_graph() -> StateGraph:
         }
     )
 
-    # From create_plan → rag_retrieval → execute
-    graph.add_edge("create_plan", "rag_retrieval")
-    graph.add_edge("rag_retrieval", "execute_tasks")
+    # From create_plan → execute
+    graph.add_edge("create_plan", "execute_tasks")
 
     # From execute → conditional (single vs multi-leg)
     graph.add_conditional_edges(
