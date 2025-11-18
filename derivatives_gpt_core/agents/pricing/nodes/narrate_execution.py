@@ -60,9 +60,10 @@ async def narrate_execution(state: PricingState) -> Dict[str, Any]:
                     missing_params.append("spot price")
 
                 if missing_params:
+                    param_list = '\n• '.join(missing_params)
                     fallback_msg = (
                         f"I couldn't complete the calculation because I need the following parameters:\n"
-                        f"• {'\n• '.join(missing_params)}\n\n"
+                        f"• {param_list}\n\n"
                         f"For American options, I need volatility and risk-free rate to use the Bjerksund-Stensland formula.\n"
                         f"You can provide these values (e.g., 'assume 25% volatility and 4.5% risk-free rate') "
                         f"or I can estimate them from historical data if you prefer."

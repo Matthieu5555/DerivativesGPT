@@ -1,6 +1,9 @@
 # %% [markdown]
 # # LangGraph Visualization
 # Showcase the graph visualization utilities and multi-agent architecture
+#
+# **Note:** This notebook only visualizes graph structures and doesn't require API keys
+# unless you want to actually execute the graphs.
 
 # %%
 import sys
@@ -18,16 +21,16 @@ from derivatives_gpt_core.utils.graph_visualization import (
     save_graph_visualization,
     display_graph_in_notebook
 )
-from derivatives_gpt_core.agents.pricing.graph import create_pricing_agent_graph
+from derivatives_gpt_core.agents.pricing.graph import create_pricing_agent
 from derivatives_gpt_core.agents.educational.graph import build_educational_agent_graph
-from derivatives_gpt_core.core.graph.orchestrator_graph import create_orchestrator_graph
+from derivatives_gpt_core.core.graph.orchestrator_graph import create_orchestrator
 
 # %% [markdown]
 # ## Pricing Agent Graph
 
 # %%
 # Create the pricing agent graph
-pricing_graph = create_pricing_agent_graph()
+pricing_graph = create_pricing_agent()
 
 # Display in notebook (requires Jupyter)
 display_graph_in_notebook(pricing_graph)
@@ -48,7 +51,7 @@ display_graph_in_notebook(educational_graph)
 # %%
 # Create the orchestrator graph
 import asyncio
-orchestrator_graph = asyncio.run(create_orchestrator_graph())
+orchestrator_graph = create_orchestrator()
 
 # Display in notebook
 display_graph_in_notebook(orchestrator_graph)

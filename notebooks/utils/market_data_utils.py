@@ -3,7 +3,7 @@
 from typing import Dict
 from derivatives_gpt_core.data.market_data.price_provider import SQLPriceProvider
 from derivatives_gpt_core.langchain_tools.volatility_tool import estimate_annualized_volatility
-from derivatives_gpt_core.langchain_tools.risk_free_rate_tool import get_risk_free_rate_tool
+from derivatives_gpt_core.langchain_tools.risk_free_rate_tool import estimate_risk_free_rate
 import yfinance as yf
 import numpy as np
 
@@ -51,8 +51,8 @@ def fetch_volatility(ticker: str, lookback_days: int = 30) -> Dict:
 
 def fetch_risk_free_rate() -> float:
     """Get current risk-free rate using actual tool."""
-    # Use the actual risk-free rate tool
-    result = get_risk_free_rate_tool.invoke({})
+    # Use the actual risk-free rate tool (requires time horizon in days)
+    result = estimate_risk_free_rate.invoke({"time_horizon_days": 30})
 
     # Parse the rate from the result
     try:

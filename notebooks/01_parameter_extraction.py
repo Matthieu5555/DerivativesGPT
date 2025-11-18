@@ -7,12 +7,43 @@ import asyncio
 import sys
 from pathlib import Path
 import os
+import getpass
+from dotenv import load_dotenv
 
 # Add parent directory to path to import from main codebase
 # Works in both notebooks and scripts
 notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file__).parent
 project_root = notebook_dir.parent
 sys.path.insert(0, str(project_root))
+
+# Load environment variables from .env file
+load_dotenv()
+
+# %% [markdown]
+# ## API Key Setup
+# This notebook requires API keys based on your LLM_PROVIDER setting:
+# - openrouter → OPENROUTER_API_KEY (default)
+# - openai → OPENAI_API_KEY
+# - gemini → GEMINI_API_KEY
+#
+# If you have a .env file, it will be loaded automatically.
+# Otherwise, you'll be prompted to enter the required API key.
+
+# %%
+def _set_env(var: str):
+    """Helper function to set environment variable if not already set"""
+    if not os.environ.get(var):
+        os.environ[var] = getpass.getpass(f"{var}: ")
+
+# Determine which API key to request based on LLM_PROVIDER (defaults to openrouter)
+llm_provider = os.environ.get("LLM_PROVIDER", "openrouter")
+
+if llm_provider == "openai":
+    _set_env("OPENAI_API_KEY")
+elif llm_provider in ("gemini", "gemini_finetuned"):
+    _set_env("GEMINI_API_KEY")
+else:  # openrouter is default
+    _set_env("OPENROUTER_API_KEY")
 
 # Import the ACTUAL parameter extraction from the codebase
 from derivatives_gpt_core.agents.pricing.nodes.extract_parameters import extract_parameters

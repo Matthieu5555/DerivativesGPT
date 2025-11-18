@@ -1,6 +1,9 @@
 # %% [markdown]
 # # Market Data Fetching from Yahoo Finance
 # Real-time market data retrieval
+#
+# **Note:** This notebook uses Yahoo Finance which does not require API keys.
+# All data is fetched through the yfinance library.
 
 # %%
 import sys

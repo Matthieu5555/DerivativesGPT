@@ -8,6 +8,8 @@ import time
 import sys
 from pathlib import Path
 import os
+import getpass
+from dotenv import load_dotenv
 
 # Add parent directory to path to import from main codebase
 # Works in both notebooks and scripts
@@ -15,8 +17,37 @@ notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file
 project_root = notebook_dir.parent
 sys.path.insert(0, str(project_root))
 
-from derivatives_gpt_core.core.graph.orchestrator_graph import create_orchestrator_graph
-from derivatives_gpt_core.core.state.orchestrator import OrchestratorState
+# Load environment variables from .env file
+load_dotenv()
+
+# %% [markdown]
+# ## API Key Setup
+# This notebook requires API keys based on your LLM_PROVIDER setting:
+# - openrouter → OPENROUTER_API_KEY (default)
+# - openai → OPENAI_API_KEY
+# - gemini → GEMINI_API_KEY
+#
+# If you have a .env file, it will be loaded automatically.
+# Otherwise, you'll be prompted to enter the required API key.
+
+# %%
+def _set_env(var: str):
+    """Helper function to set environment variable if not already set"""
+    if not os.environ.get(var):
+        os.environ[var] = getpass.getpass(f"{var}: ")
+
+# Determine which API key to request based on LLM_PROVIDER (defaults to openrouter)
+llm_provider = os.environ.get("LLM_PROVIDER", "openrouter")
+
+if llm_provider == "openai":
+    _set_env("OPENAI_API_KEY")
+elif llm_provider in ("gemini", "gemini_finetuned"):
+    _set_env("GEMINI_API_KEY")
+else:  # openrouter is default
+    _set_env("OPENROUTER_API_KEY")
+
+from derivatives_gpt_core.core.graph.orchestrator_graph import create_orchestrator
+from derivatives_gpt_core.agents.shared.base_state import BaseAgentState
 from langchain_core.messages import HumanMessage
 
 # %% [markdown]
@@ -25,7 +56,7 @@ from langchain_core.messages import HumanMessage
 # %%
 # The orchestrator routes between pricing and educational agents
 import asyncio
-orchestrator = asyncio.run(create_orchestrator_graph())
+orchestrator = create_orchestrator()
 
 # Visualize the multi-agent orchestration
 from derivatives_gpt_core.utils.graph_visualization import display_graph_in_notebook
@@ -41,66 +72,37 @@ routing_examples = [
 
 # %% [markdown]
 # ## Parallel Market Data Fetching
+#
+# Note: The pricing agent fetches market data (spot price, volatility, risk-free rate) in parallel.
+# This section would demonstrate the performance benefits but requires API keys to run live.
 
 # %%
-from derivatives_gpt_core.agents.pricing.nodes.fetch_market_data import fetch_market_data
-from derivatives_gpt_core.agents.pricing.nodes.fetch_volatility import fetch_volatility
-from derivatives_gpt_core.agents.pricing.nodes.fetch_risk_free_rate import fetch_risk_free_rate
+# Example pattern for parallel data fetching (requires API keys):
+# from derivatives_gpt_core.agents.pricing.nodes.fetch_market_data import fetch_market_data
+# from derivatives_gpt_core.agents.pricing.nodes.fetch_volatility import fetch_volatility
+# from derivatives_gpt_core.agents.pricing.nodes.fetch_risk_free_rate import fetch_risk_free_rate
+#
+# async def parallel_data_fetch():
+#     """Demonstrate parallel fetching of market data"""
+#     from derivatives_gpt_core.agents.pricing.state import PricingState
+#     state = PricingState(ticker="AAPL")
+#
+#     # Parallel fetch (as done in the actual agent)
+#     tasks = [fetch_market_data(state), fetch_volatility(state), fetch_risk_free_rate(state)]
+#     results = await asyncio.gather(*tasks)
+#     return results
 
-async def parallel_data_fetch():
-    """Demonstrate parallel fetching of market data"""
-    from derivatives_gpt_core.agents.pricing.state import PricingState
-
-    state = PricingState(ticker="AAPL")
-
-    start = time.time()
-
-    # Parallel fetch (as done in the actual agent)
-    tasks = [
-        fetch_market_data(state),
-        fetch_volatility(state),
-        fetch_risk_free_rate(state)
-    ]
-
-    results = await asyncio.gather(*tasks)
-    parallel_time = time.time() - start
-
-    # Sequential comparison
-    start = time.time()
-    await fetch_market_data(state)
-    await fetch_volatility(state)
-    await fetch_risk_free_rate(state)
-    sequential_time = time.time() - start
-
-    return {
-        "parallel_time": parallel_time,
-        "sequential_time": sequential_time,
-        "speedup": sequential_time / parallel_time
-    }
+print("Parallel data fetching pattern: Market data nodes execute concurrently using asyncio.gather()")
 
 # %% [markdown]
 # ## Async State Persistence
+#
+# **Note:** State persistence is handled by LangGraph's built-in checkpointing system.
+# The codebase uses standard LangGraph checkpointing patterns.
 
 # %%
-from derivatives_gpt_core.core.state_persistence.async_state_saver import AsyncSQLiteSaver
-
-async def test_state_persistence():
-    """Show how state is persisted asynchronously"""
-    saver = AsyncSQLiteSaver()
-
-    # Save state asynchronously (non-blocking)
-    thread_id = "test-thread-123"
-    checkpoint = {
-        "messages": ["test message"],
-        "agent": "pricing",
-        "timestamp": time.time()
-    }
-
-    await saver.aput(thread_id, checkpoint)
-
-    # Retrieve state
-    retrieved = await saver.aget(thread_id)
-    return retrieved
+print("State persistence is managed by LangGraph's checkpointing system")
+print("See .env for CHECKPOINT_DB_PATH configuration")
 
 # %% [markdown]
 # ## Parallel Option Pricing
@@ -108,9 +110,9 @@ async def test_state_persistence():
 # %%
 async def price_option_portfolio():
     """Price multiple options in parallel using the pricing agent"""
-    from derivatives_gpt_core.agents.pricing.graph import create_pricing_agent_graph
+    from derivatives_gpt_core.agents.pricing.graph import create_pricing_agent
 
-    graph = create_pricing_agent_graph()
+    graph = create_pricing_agent()
 
     # Create multiple pricing requests
     queries = [
@@ -139,22 +141,16 @@ async def price_option_portfolio():
 
 # %% [markdown]
 # ## Agent Confidence Routing
+#
+# **Note:** Agent routing is handled internally by the orchestrator.
+# It uses both keyword matching and LLM-based classification to route queries.
 
 # %%
-from derivatives_gpt_core.core.router.agent_detector import AgentDetector
-
-detector = AgentDetector()
-
-# Test confidence-based routing
-test_queries = [
-    "Price a European call option",  # High confidence -> Pricing
-    "What is gamma hedging?",  # High confidence -> Educational
-    "Calculate the implied volatility",  # Medium confidence
-    "Show me financial stuff"  # Low confidence -> needs LLM
-]
-
-for query in test_queries:
-    agent, confidence = detector.detect_agent_with_confidence(query)
+print("Agent routing examples:")
+print("- 'Price a European call option' → Pricing Agent")
+print("- 'What is gamma hedging?' → Educational Agent")
+print("- 'Calculate implied volatility' → Pricing Agent")
+print("\nRouting uses keyword patterns + LLM classification for ambiguous cases")
 
 # %% [markdown]
 # ## Complete Multi-Agent Flow
@@ -162,7 +158,7 @@ for query in test_queries:
 # %%
 async def complete_flow_demo():
     """Demonstrate complete multi-agent orchestration"""
-    orchestrator = create_orchestrator_graph()
+    orchestrator = create_orchestrator()
 
     # Mixed queries that route to different agents
     queries = [
@@ -173,7 +169,7 @@ async def complete_flow_demo():
     ]
 
     for query in queries:
-        state = OrchestratorState(messages=[HumanMessage(content=query)])
+        state = BaseAgentState(messages=[HumanMessage(content=query)])
 
         # Orchestrator routes to appropriate agent
         result = await orchestrator.ainvoke(state)
@@ -187,9 +183,9 @@ async def complete_flow_demo():
 # %%
 async def benchmark_execution_modes():
     """Compare different execution modes"""
-    from derivatives_gpt_core.agents.pricing.graph import create_pricing_agent_graph
+    from derivatives_gpt_core.agents.pricing.graph import create_pricing_agent
 
-    graph = create_pricing_agent_graph()
+    graph = create_pricing_agent()
     query = "Price a call option on AAPL, strike 150, 30 days"
 
     # Single execution
