@@ -11,9 +11,15 @@ from pathlib import Path
 import os
 
 # Add parent directory to path to import from main codebase
-# Works in both notebooks and scripts
-notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file__).parent
-project_root = notebook_dir.parent
+# Works in both .py scripts and .ipynb Jupyter notebooks
+if '__file__' in globals():
+    notebook_dir = Path(__file__).parent
+    project_root = notebook_dir.parent
+else:
+    # Running in Jupyter - find project root by marker file
+    current = Path(os.getcwd())
+    project_root = current if (current / 'pyproject.toml').exists() else current.parent
+
 sys.path.insert(0, str(project_root))
 
 from notebooks.utils.market_data_utils import fetch_spot_price, fetch_volatility, fetch_risk_free_rate

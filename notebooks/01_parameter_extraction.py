@@ -10,8 +10,15 @@ import os
 import getpass
 from dotenv import load_dotenv
 
-notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file__).parent
-project_root = notebook_dir.parent
+# Works in both .py scripts and .ipynb Jupyter notebooks
+if '__file__' in globals():
+    notebook_dir = Path(__file__).parent
+    project_root = notebook_dir.parent
+else:
+    # Running in Jupyter - find project root by marker file
+    current = Path(os.getcwd())
+    project_root = current if (current / 'pyproject.toml').exists() else current.parent
+
 sys.path.insert(0, str(project_root))
 
 load_dotenv()
@@ -121,11 +128,66 @@ query5 = "What's the price of an option?"
 await test_extraction(query5)
 
 # %% [markdown]
-# ## Key Insights
-#
-# The parameter extraction node demonstrates:
-# 1. **Structured Output Parsing**: Converts natural language to structured parameters
-# 2. **Context Understanding**: Infers implicit parameters (e.g., "protective put" → put option)
-# 3. **Relative Strike Resolution**: Handles "around $250" appropriately
-# 4. **Missing Information Detection**: Identifies what needs clarification
-# 5. **Product Type Classification**: Maps to specific pricing models (vanilla, barrier, etc.)
+# ## Multi-Leg Strategies: Straddle
+
+# %%
+print("\n" + "=" * 80)
+print("Example 6: Straddle (Long Call + Long Put)")
+print("=" * 80)
+query6 = "Price a straddle on NVDA at strike $180, expiring in 45 days"
+result6 = await test_extraction(query6)
+
+if result6.get('multi_leg'):
+    print("\n📊 Multi-Leg Strategy Detected:")
+    print(f"  Strategy Type: {result6.get('strategy_type', 'N/A')}")
+    print(f"  Number of Legs: {len(result6.get('legs', []))}")
+
+    if result6.get('legs'):
+        print("\n  Individual Legs:")
+        for i, leg in enumerate(result6['legs'], 1):
+            print(f"    Leg {i}: {leg.get('option_type', 'N/A').upper()} @ ${leg.get('strike_price', 'N/A')}")
+
+# %% [markdown]
+# ## Multi-Leg Strategies: Iron Condor
+
+# %%
+print("\n" + "=" * 80)
+print("Example 7: Iron Condor (4 Legs)")
+print("=" * 80)
+query7 = "Price an iron condor on SPY: buy 440 put, sell 445 put, sell 460 call, buy 465 call, 30 days"
+result7 = await test_extraction(query7)
+
+if result7.get('multi_leg'):
+    print("\n📊 Multi-Leg Strategy Detected:")
+    print(f"  Strategy Type: {result7.get('strategy_type', 'iron_condor')}")
+
+    if result7.get('legs'):
+        print(f"\n  {len(result7['legs'])} Legs:")
+        for i, leg in enumerate(result7['legs'], 1):
+            position = leg.get('position', 'long')
+            opt_type = leg.get('option_type', 'N/A')
+            strike = leg.get('strike_price', 'N/A')
+            print(f"    {i}. {position.upper()} {opt_type.upper()} @ ${strike}")
+
+# %% [markdown]
+# ## Multi-Leg Strategies: Bull Call Spread
+
+# %%
+print("\n" + "=" * 80)
+print("Example 8: Bull Call Spread")
+print("=" * 80)
+query8 = "Create a bull call spread on AAPL: buy 265 call, sell 275 call, 60 days"
+result8 = await test_extraction(query8)
+
+if result8.get('multi_leg'):
+    print("\n📊 Spread Strategy:")
+    legs = result8.get('legs', [])
+
+    long_leg = next((l for l in legs if l.get('position') == 'long'), None)
+    short_leg = next((l for l in legs if l.get('position') == 'short'), None)
+
+    if long_leg and short_leg:
+        print(f"  Long:  {long_leg['option_type'].upper()} @ ${long_leg['strike_price']}")
+        print(f"  Short: {short_leg['option_type'].upper()} @ ${short_leg['strike_price']}")
+        print(f"  Max Profit: ${short_leg['strike_price'] - long_leg['strike_price']} (at expiry if > ${short_leg['strike_price']})")
+        print(f"  Max Loss: Premium paid (if < ${long_leg['strike_price']})")
