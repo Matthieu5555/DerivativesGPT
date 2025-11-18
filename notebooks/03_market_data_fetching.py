@@ -5,9 +5,13 @@
 # %%
 import sys
 from pathlib import Path
+import os
 
 # Add parent directory to path to import from main codebase
-sys.path.append(str(Path(__file__).parent.parent))
+# Works in both notebooks and scripts
+notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file__).parent
+project_root = notebook_dir.parent
+sys.path.insert(0, str(project_root))
 
 from notebooks.utils.market_data_utils import fetch_spot_price, fetch_volatility, fetch_risk_free_rate
 from notebooks.utils.common import timer

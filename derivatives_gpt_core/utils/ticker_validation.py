@@ -13,17 +13,26 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Constants
-VALIDATION_TIMEOUT = 5  # seconds - used by yfinance queries to prevent hanging
-CACHE_SIZE = 1000  # Maximum number of ticker validations to cache in memory
+# Called by: validate_ticker_exists() for timeout control
+# Sets max wait time for yfinance API calls before giving up
+# Lower values = faster failures but may miss slow APIs, Higher = more reliable but slower
+VALIDATION_TIMEOUT = 5  # seconds
+
+# Called by: @lru_cache decorator on validate_ticker_exists()
+# Maximum ticker validations kept in memory to avoid repeated API calls
+# Higher values = more memory usage but fewer API calls, 1000 is reasonable for typical usage
+CACHE_SIZE = 1000
 
 
 @lru_cache(maxsize=CACHE_SIZE)
 def validate_ticker_exists(ticker: str) -> Dict[str, Any]:
     """
-    Validate if a ticker exists on Yahoo Finance using multiple fallback checks.
+    # Called by: classify_intent node before routing to pricing agent
+    # Prevents pricing failures by validating ticker exists before computation
+    # Cached to avoid repeated Yahoo Finance API calls for same tickers
+    # Results used to display friendly errors ("FAKE123 not found") instead of crashes
 
-    This function implements a robust validation strategy:
+    Validation strategy:
     1. Attempts to fetch ticker.info (catches 404 errors)
     2. Falls back to checking ticker.history for data availability
     3. Returns structured result with validation status and metadata

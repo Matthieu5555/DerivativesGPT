@@ -142,12 +142,11 @@ async def detect_agent_type_llm(user_message: str) -> AgentDetectionResult:
     return result
 
 
-def detect_agent_type(user_message: str) -> AgentDetectionResult:
+def detect_agent_type_llm_based(user_message: str) -> AgentDetectionResult:
     """
-    Synchronous wrapper for backward compatibility.
-
-    This maintains the same interface as the old regex-based function
-    but uses LLM classification under the hood.
+    # Called by: Production orchestrator for accurate agent routing
+    # Uses LLM classification for better accuracy than keyword matching
+    # Synchronous wrapper around detect_agent_type_llm() async function
 
     Args:
         user_message: The user's input text

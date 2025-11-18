@@ -111,9 +111,11 @@ PRICING_KEYWORDS = [
 ]
 
 
-def detect_agent_type(user_message: str) -> AgentDetectionResult:
+def detect_agent_type_keyword_based(user_message: str) -> AgentDetectionResult:
     """
-    Detect which agent should handle the user message.
+    # Called by: POC/testing code (proof-of-concept implementation)
+    # Keyword-based detection using regex patterns for agent routing
+    # Use detect_agent_type_llm_based() for production (more accurate)
 
     Args:
         user_message: The user's input text

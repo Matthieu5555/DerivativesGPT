@@ -7,9 +7,13 @@ import asyncio
 import time
 import sys
 from pathlib import Path
+import os
 
 # Add parent directory to path to import from main codebase
-sys.path.append(str(Path(__file__).parent.parent))
+# Works in both notebooks and scripts
+notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file__).parent
+project_root = notebook_dir.parent
+sys.path.insert(0, str(project_root))
 
 from derivatives_gpt_core.core.graph.orchestrator_graph import create_orchestrator_graph
 from derivatives_gpt_core.core.state.orchestrator import OrchestratorState
@@ -20,7 +24,12 @@ from langchain_core.messages import HumanMessage
 
 # %%
 # The orchestrator routes between pricing and educational agents
-orchestrator = create_orchestrator_graph()
+import asyncio
+orchestrator = asyncio.run(create_orchestrator_graph())
+
+# Visualize the multi-agent orchestration
+from derivatives_gpt_core.utils.graph_visualization import display_graph_in_notebook
+display_graph_in_notebook(orchestrator)
 
 # It uses both keyword and LLM-based detection for routing
 routing_examples = [

@@ -5,7 +5,9 @@ from typing import Any
 
 def format_pricing_response(result: dict[str, Any]) -> str:
     """
-    Format graph result into user-facing response.
+    # Called by: Chainlit UI, FastAPI endpoints for displaying pricing results to users
+    # Converts internal graph state into user-friendly text response
+    # Changing format here affects all user-facing pricing outputs
 
     Args:
         result: Graph execution result containing query_type, messages, etc.

@@ -106,11 +106,17 @@ async def detect_agent_intent(user_message: str) -> AgentDetectionResult:
             return AgentDetectionResult("educational", 0.5, "Fallback: defaulting to educational")
 
 
-def detect_agent_type(user_message: str) -> AgentDetectionResult:
+def detect_agent_type_intent_based(user_message: str) -> AgentDetectionResult:
     """
-    Synchronous wrapper for async intent detection.
+    # Called by: Alternative agent routing implementation (experimental)
+    # Uses intent analysis rather than keyword matching or structured classification
+    # Synchronous wrapper around detect_agent_intent() async function
 
-    This is a temporary wrapper for backward compatibility.
+    Args:
+        user_message: The user's input text
+
+    Returns:
+        AgentDetectionResult with detected agent type
     """
     import asyncio
     try:

@@ -5,9 +5,13 @@
 # %%
 import sys
 from pathlib import Path
+import os
 
 # Add parent directory to path to import from main codebase
-sys.path.append(str(Path(__file__).parent.parent))
+# Works in both notebooks and scripts
+notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file__).parent
+project_root = notebook_dir.parent
+sys.path.insert(0, str(project_root))
 
 from derivatives_gpt_core.agents.educational.rag.hybrid_retriever import HybridRetriever
 from derivatives_gpt_core.agents.educational.rag.llm_reformulation import LLMReformulation

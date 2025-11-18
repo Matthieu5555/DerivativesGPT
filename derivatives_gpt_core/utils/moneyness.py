@@ -18,7 +18,9 @@ def calculate_moneyness(
     option_type: Literal["call", "put"]
 ) -> str:
     """
-    Calculate moneyness classification for an option.
+    # Called by: Pricing validation, strategy decomposition, risk analysis modules
+    # Determines if option has intrinsic value (affects pricing and exercise decisions)
+    # Changing AT_THE_MONEY_THRESHOLD in constants.py affects boundary classification
 
     Args:
         spot_price: Current asset price
@@ -70,7 +72,9 @@ def calculate_moneyness(
 
 def get_moneyness_ratio(spot_price: float, strike_price: float) -> float:
     """
-    Calculate moneyness ratio (spot/strike).
+    # Called by: Greeks calculation, implied volatility solvers, risk metrics
+    # Provides numerical measure of how far ITM/OTM an option is
+    # Used in volatility smile analysis and delta calculations
 
     Args:
         spot_price: Current asset price
