@@ -7,47 +7,22 @@ from derivatives_gpt_core.langchain_tools.risk_free_rate_tool import estimate_ri
 import yfinance as yf
 import numpy as np
 
-def fetch_spot_price(ticker: str) -> Dict:
-    """Fetch current market data from Yahoo Finance."""
+def fetch_spot_price(ticker: str) -> float:
+    """Fetch current spot price from Yahoo Finance."""
     provider = SQLPriceProvider()
-    data = provider.get_current_price(ticker)
+    price = provider.get_current_price(ticker)
+    return price
 
-    return {
-        'ticker': ticker,
-        'spot': data['regularMarketPrice'],
-        'prev_close': data['regularMarketPreviousClose'],
-        'volume': data['regularMarketVolume'],
-        'change': data['regularMarketPrice'] - data['regularMarketPreviousClose'],
-        'change_pct': ((data['regularMarketPrice'] / data['regularMarketPreviousClose']) - 1) * 100,
-        'timestamp': data.get('regularMarketTime', 'N/A')
-    }
-
-def fetch_volatility(ticker: str, lookback_days: int = 30) -> Dict:
-    """Calculate historical volatility using actual tool."""
-    # Use the actual volatility tool
-    vol_str = estimate_annualized_volatility(ticker, lookback_days)
-
-    # Parse the volatility from the string result
-    # The tool returns a string like "Annualized volatility: 0.2342"
+def fetch_volatility(ticker: str, period: int = 30) -> float:
+    """Calculate historical volatility."""
     try:
-        hist_vol = float(vol_str.split(":")[-1].strip())
-    except:
-        # Fallback calculation
         ticker_obj = yf.Ticker(ticker)
-        hist = ticker_obj.history(period=f"{lookback_days}d")
+        hist = ticker_obj.history(period=f"{period}d")
         returns = np.log(hist['Close'] / hist['Close'].shift(1))
-        hist_vol = returns.std() * np.sqrt(252)
-
-    # Mock implied volatility (typically higher)
-    implied_vol = hist_vol * 1.15
-
-    return {
-        'ticker': ticker,
-        'historical_vol': hist_vol,
-        'implied_vol': implied_vol,
-        'lookback_days': lookback_days,
-        'vol_spread': implied_vol - hist_vol
-    }
+        vol = returns.std() * np.sqrt(252)
+        return vol
+    except:
+        return 0.25  # Fallback
 
 def fetch_risk_free_rate() -> float:
     """Get current risk-free rate using actual tool."""

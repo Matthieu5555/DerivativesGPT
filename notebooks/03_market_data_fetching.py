@@ -21,40 +21,68 @@ from notebooks.utils.common import timer
 import pandas as pd
 
 # %% [markdown]
-# ## Fetch Single Stock Data
+# ## Example 1: Fetch Single Stock Price
 
 # %%
-@timer
-def get_stock_data(ticker):
-    return fetch_spot_price(ticker)
+ticker = 'AAPL'
+print(f"Fetching current price for {ticker}...")
+
+price = fetch_spot_price(ticker)
+print(f"\n✓ {ticker} Current Price: ${price:.2f}")
 
 # %% [markdown]
-# ## Batch Fetch Multiple Tickers
+# ## Example 2: Batch Fetch Multiple Tickers
 
 # %%
 tickers = ['AAPL', 'TSLA', 'SPY', 'NVDA', 'MSFT']
+print(f"Fetching prices for {len(tickers)} tickers...\n")
 
-@timer
-def batch_fetch(tickers):
-    return [fetch_spot_price(t) for t in tickers]
+prices = {}
+for ticker in tickers:
+    try:
+        prices[ticker] = fetch_spot_price(ticker)
+        print(f"  {ticker:6s}: ${prices[ticker]:>8.2f}")
+    except Exception as e:
+        print(f"  {ticker:6s}: Error - {e}")
 
 # %% [markdown]
-# ## Fetch Volatility Data
-
-# %%
-
-# %% [markdown]
-# ## Complete Option Pricing Parameters
+# ## Example 3: Fetch Historical Volatility
 
 # %%
 ticker = 'SPY'
+print(f"Calculating 30-day historical volatility for {ticker}...")
+
+vol = fetch_volatility(ticker, period=30)
+print(f"\n✓ {ticker} 30-Day Volatility: {vol:.2%}")
 
 # %% [markdown]
-# ## Error Handling Demo
+# ## Example 4: Complete Option Pricing Parameters
 
 # %%
-# Try invalid ticker
+ticker = 'AAPL'
+print(f"Fetching complete pricing parameters for {ticker}...\n")
+
+# Fetch all required parameters
+spot = fetch_spot_price(ticker)
+vol = fetch_volatility(ticker, period=30)
+rfr = fetch_risk_free_rate()
+
+print(f"Complete Parameters for {ticker} Option Pricing:")
+print(f"  Spot Price:        ${spot:.2f}")
+print(f"  Volatility (30d):  {vol:.2%}")
+print(f"  Risk-Free Rate:    {rfr:.2%}")
+print(f"\n✓ Ready for option pricing calculations!")
+
+# %% [markdown]
+# ## Example 5: Error Handling
+
+# %%
+# Demonstrate error handling with invalid ticker
+print("Testing error handling with invalid ticker...")
+
 try:
-    invalid_data = fetch_spot_price('INVALID123')
+    invalid_data = fetch_spot_price('INVALID_TICKER_123')
+    print(f"Price: {invalid_data}")
 except Exception as e:
-    pass  # Error handling demonstration
+    print(f"✓ Error caught gracefully: {type(e).__name__}")
+    print(f"  Message: {str(e)}")

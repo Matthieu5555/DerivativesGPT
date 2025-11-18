@@ -99,38 +99,36 @@ for edge in pricing_graph_obj.edges:
     print(f"  {edge.source} → {edge.target}")
 
 # %% [markdown]
-# ## Key Architectural Patterns
+# ## Key Architectural Patterns in the Graphs
 
 # %%
-# The graphs demonstrate key LangGraph patterns used in the course:
+print("=" * 60)
+print("LangGraph Patterns Demonstrated in DerivativesGPT")
+print("=" * 60)
 
-print("""
-LangGraph Patterns Demonstrated:
+# Pattern 1: Conditional Routing
+print("\n1. CONDITIONAL ROUTING")
+print("   Pricing Agent:")
+for edge in pricing_graph_obj.edges:
+    if "extract_parameters" in edge.source:
+        print(f"     {edge.source} → {edge.target}")
 
-1. CONDITIONAL ROUTING:
-   - Pricing agent: Routes based on parameter extraction success
-   - Educational agent: Routes based on conversation mode
-   - Orchestrator: Routes to appropriate agent based on query type
+print("\n   The agent routes based on:")
+print("     - Parameter extraction success/failure")
+print("     - Missing vs complete information")
+print("     - Product type classification")
 
-2. ITERATIVE LOOPS:
-   - Educational agent: Quality assessment → rewrite loop (max 3 attempts)
-   - Pricing agent: Parameter extraction retry mechanism
+# Pattern 2: State Management
+print("\n2. STATE MANAGEMENT")
+print("   Total nodes in pricing agent:", len(pricing_graph_obj.nodes))
+print("   Total edges:", len(pricing_graph_obj.edges))
+print("   State flows through all nodes as TypedDict")
 
-3. PARALLEL EXECUTION:
-   - Pricing agent: Parallel market data fetching (spot, vol, rate)
-   - Multi-leg strategies: Parallel option pricing
+# Pattern 3: Multi-Agent System
+print("\n3. MULTI-AGENT ORCHESTRATION")
+print("   Agents in the system:")
+print("     - Pricing Agent (handles option calculations)")
+print("     - Educational Agent (explains concepts)")
+print("     - Orchestrator (routes queries to appropriate agent)")
 
-4. STATE MANAGEMENT:
-   - TypedDict state flows through all nodes
-   - Immutable updates using dict spreading
-   - Async SQLite checkpointing for persistence
-
-5. HUMAN-IN-THE-LOOP:
-   - Educational agent: Waits for user understanding confirmation
-   - Pricing agent: Requests missing parameters
-
-6. MULTI-AGENT ORCHESTRATION:
-   - Three specialized agents (pricing, educational, off-topic)
-   - Confidence-based routing
-   - Shared state with agent-specific fields
-""")
+print("\n" + "=" * 60)

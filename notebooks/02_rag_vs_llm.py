@@ -42,48 +42,64 @@ from derivatives_gpt_core.rag.hybrid_retriever import HybridRAGRetriever, get_ra
 
 # %%
 # The hybrid retriever combines BM25 (keyword search) with FAISS (semantic search)
-# Use singleton to avoid reloading FAISS index
-retriever = get_rag_retriever()
+# Note: This requires FAISS index to be built first. If index doesn't exist, skip to next cells.
+
+try:
+    retriever = get_rag_retriever()
+    print("✓ FAISS index loaded successfully")
+    print(f"  Index contains {retriever.index.ntotal} vectors")
+    print(f"  Metadata contains {len(retriever.metadata)} documents")
+except FileNotFoundError as e:
+    print(f"⚠ FAISS index not found: {e}")
+    print("  To build the index, run: rag_creation_dgpt/rag/index_creation.py")
+    print("  Skipping RAG examples...")
+    retriever = None
 
 # %% [markdown]
 # ## Test Query: Black-Scholes Model
 
 # %%
-query = "What are the assumptions of the Black-Scholes model?"
+if retriever:
+    query = "What are the assumptions of the Black-Scholes model?"
 
-# Retrieve relevant sources
-results = retriever.retrieve(query)
+    # Retrieve relevant sources
+    results = retriever.retrieve(query)
 
-print(f"Query: {query}\n")
-print(f"Found {len(results)} relevant sources:\n")
+    print(f"Query: {query}\n")
+    print(f"Found {len(results)} relevant sources:\n")
 
-for i, result in enumerate(results, 1):
-    print(f"{i}. Book: {result['book']}")
-    print(f"   Location: {result['page']}")
-    print(f"   Score: {result['score']:.3f}")
-    print(f"   Text: {result['text'][:200]}...")
-    print()
+    for i, result in enumerate(results, 1):
+        print(f"{i}. Book: {result['book']}")
+        print(f"   Location: {result['page']}")
+        print(f"   Score: {result['score']:.3f}")
+        print(f"   Text: {result['text'][:200]}...")
+        print()
+else:
+    print("Skipping - FAISS index not available")
 
 # %% [markdown]
 # ## Multiple Test Queries
 
 # %%
-# Test different types of queries
-test_queries = [
-    "Explain delta hedging",
-    "What is the volatility smile?",
-    "How do barrier options work?",
-    "What is put-call parity?"
-]
+if retriever:
+    # Test different types of queries
+    test_queries = [
+        "Explain delta hedging",
+        "What is the volatility smile?",
+        "How do barrier options work?",
+        "What is put-call parity?"
+    ]
 
-print("Testing RAG Retrieval on Multiple Queries:\n")
-for query in test_queries:
-    results = retriever.retrieve(query)
-    print(f"Query: {query}")
-    print(f"  → Found {len(results)} sources")
-    if results:
-        print(f"  → Top result from: {results[0]['book']} ({results[0]['page']})")
-    print()
+    print("Testing RAG Retrieval on Multiple Queries:\n")
+    for query in test_queries:
+        results = retriever.retrieve(query)
+        print(f"Query: {query}")
+        print(f"  → Found {len(results)} sources")
+        if results:
+            print(f"  → Top result from: {results[0]['book']} ({results[0]['page']})")
+        print()
+else:
+    print("Skipping - FAISS index not available")
 
 # %% [markdown]
 # ## Hybrid Retrieval Architecture

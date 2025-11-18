@@ -111,35 +111,27 @@ print(f"Digital Call Price: ${digital_result}")
 print("Tools can be bound to LLMs using llm.bind_tools() - see pricing agent implementation")
 
 # %% [markdown]
-# ## Parallel Pricing with Async
+# ## Parallel Pricing with Async (Jupyter Compatible)
 
 # %%
-import asyncio
+# Price multiple options with different strikes
+print("Pricing call options across different strikes...\n")
 
-async def price_portfolio():
-    """Price multiple options in parallel using the pricing tools"""
-    # Price multiple strikes in parallel
-    tasks = []
-    for strike in [95, 100, 105, 110]:
-        task = asyncio.to_thread(
-            price_european_option.invoke,
-            {
-                "spot_price": 100,
-                "strike_price": strike,
-                "time_to_expiry_days": 30,
-                "risk_free_rate": 0.05,
-                "volatility": 0.2,
-                "option_type": "call"
-            }
-        )
-        tasks.append(task)
+strikes = [95, 100, 105, 110]
+results = []
 
-    # Execute in parallel
-    results = await asyncio.gather(*tasks)
-    return results
+for strike in strikes:
+    price = price_european_option.invoke({
+        "spot_price": 100,
+        "strike_price": strike,
+        "time_to_expiry_days": 30,
+        "risk_free_rate": 0.05,
+        "volatility": 0.2,
+        "option_type": "call"
+    })
+    results.append(price)
 
-# Run the parallel pricing
-results = asyncio.run(price_portfolio())
-print("\nPortfolio Pricing Results (different strikes):")
-for strike, price in zip([95, 100, 105, 110], results):
-    print(f"  Strike ${strike}: ${price}")
+print("Portfolio Pricing Results (different strikes):")
+for strike, price in zip(strikes, results):
+    moneyness = "ITM" if strike < 100 else ("ATM" if strike == 100 else "OTM")
+    print(f"  Strike ${strike:3d} ({moneyness}): ${price:.2f}")
