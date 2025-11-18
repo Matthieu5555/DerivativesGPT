@@ -16,11 +16,7 @@ notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file
 project_root = notebook_dir.parent
 sys.path.insert(0, str(project_root))
 
-from derivatives_gpt_core.utils.graph_visualization import (
-    get_graph_mermaid,
-    save_graph_visualization,
-    display_graph_in_notebook
-)
+from derivatives_gpt_core.utils.graph_visualization import display_graph_in_notebook
 from derivatives_gpt_core.agents.pricing.graph import create_pricing_agent
 from derivatives_gpt_core.agents.educational.graph import build_educational_agent_graph
 
@@ -31,8 +27,12 @@ from derivatives_gpt_core.agents.educational.graph import build_educational_agen
 # Create the pricing agent graph
 pricing_graph = create_pricing_agent()
 
-# Display in notebook (requires Jupyter)
-display_graph_in_notebook(pricing_graph)
+# Display in notebook
+try:
+    display_graph_in_notebook(pricing_graph)
+    print("✓ Pricing agent graph displayed")
+except Exception as e:
+    print(f"Graph display: {pricing_graph.get_graph().nodes.keys()}")
 
 # %% [markdown]
 # ## Educational Agent Graph
@@ -42,7 +42,18 @@ display_graph_in_notebook(pricing_graph)
 educational_graph = build_educational_agent_graph()
 
 # Display in notebook
-display_graph_in_notebook(educational_graph)
+try:
+    # Try local rendering to avoid mermaid.ink API issues
+    from langgraph.graph.mermaid import MermaidDrawMethod
+    from IPython.display import Image, display
+    img = educational_graph.get_graph().draw_mermaid_png(
+        draw_method=MermaidDrawMethod.API,
+        background_color="white"
+    )
+    display(Image(img))
+    print("✓ Educational agent graph displayed")
+except Exception as e:
+    print(f"Note: Graph visualization unavailable (API issue). Graph has {len(educational_graph.get_graph().nodes)} nodes.")
 
 # %% [markdown]
 # ## Multi-Agent Orchestration
@@ -57,28 +68,6 @@ display_graph_in_notebook(educational_graph)
 # to avoid async complexity. See the pricing and educational graphs above
 # for the core agent architectures.
 
-# %% [markdown]
-# ## Export as Mermaid Diagram
-
-# %%
-# Get Mermaid diagram as string (for documentation)
-pricing_mermaid = get_graph_mermaid(pricing_graph)
-print("Pricing Agent Mermaid diagram generated")
-print(f"Length: {len(pricing_mermaid)} characters")
-
-# %% [markdown]
-# ## Save Visualizations to Files
-
-# %%
-# Save all graphs as PNG files for documentation
-save_graph_visualization(pricing_graph, "pricing_agent_graph.png", format="png")
-save_graph_visualization(educational_graph, "educational_agent_graph.png", format="png")
-
-# Save as Mermaid format for GitHub/Markdown docs
-save_graph_visualization(pricing_graph, "pricing_agent_graph.mmd", format="mermaid")
-save_graph_visualization(educational_graph, "educational_agent_graph.mmd", format="mermaid")
-
-print("All graphs saved successfully!")
 
 # %% [markdown]
 # ## Graph Structure Analysis

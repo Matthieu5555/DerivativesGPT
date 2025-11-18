@@ -46,17 +46,11 @@ from derivatives_gpt_core.rag.hybrid_retriever import HybridRAGRetriever, get_ra
 
 # %%
 # The hybrid retriever combines BM25 (keyword search) with FAISS (semantic search)
-# Note: This requires FAISS index to be built first. If index doesn't exist, skip to next cells.
-
 try:
     retriever = get_rag_retriever()
-    print("✓ FAISS index loaded successfully")
-    print(f"  Index contains {retriever.index.ntotal} vectors")
-    print(f"  Metadata contains {len(retriever.metadata)} documents")
-except FileNotFoundError as e:
-    print(f"⚠ FAISS index not found: {e}")
-    print("  To build the index, run: rag_creation_dgpt/rag/index_creation.py")
-    print("  Skipping RAG examples...")
+    print(f"✓ FAISS index loaded: {retriever.index.ntotal} vectors, {len(retriever.metadata)} documents\n")
+except Exception as e:
+    print(f"⚠ FAISS index not available. Skipping RAG examples.\n")
     retriever = None
 
 # %% [markdown]

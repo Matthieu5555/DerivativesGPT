@@ -1,214 +1,107 @@
 # %% [markdown]
-# # DerivativesGPT Quickstart Demo
-# End-to-end demonstration of the multi-agent derivatives pricing system
+# # DerivativesGPT Component Showcase
+# Demonstrates individual components without the full orchestrator
 #
 # This notebook showcases:
-# - Multi-agent orchestration (Pricing + Educational agents)
-# - Parameter extraction from natural language
-# - Real-time market data fetching
-# - Option pricing with multiple models
-# - RAG-augmented educational responses
+# - Direct pricing agent usage
+# - Market data fetching
+# - RAG retrieval
+# - Option pricing calculations
+#
+# **For full multi-agent orchestration**: Use the Chainlit UI application
 
 # %%
-import asyncio
 import sys
 from pathlib import Path
 import os
-import getpass
-from dotenv import load_dotenv
 
-# Setup project paths
 notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file__).parent
 project_root = notebook_dir.parent
 sys.path.insert(0, str(project_root))
-
-# Change to project root for correct file paths
-original_cwd = os.getcwd()
 os.chdir(project_root)
 
-load_dotenv()
+from notebooks.utils.market_data_utils import fetch_spot_price, fetch_volatility, fetch_risk_free_rate
+from derivatives_gpt_core.langchain_tools.black_scholes_tool import price_european_option
+from derivatives_gpt_core.rag.hybrid_retriever import get_rag_retriever
 
 # %% [markdown]
-# ## API Key Setup
-# Required keys (at minimum one of):
-# - **OPENROUTER_API_KEY** (recommended, default)
-# - **OPENAI_API_KEY** (if using OpenAI)
-# - **GEMINI_API_KEY** (if using Gemini, also needed for RAG embeddings)
-#
-# Optional for enhanced features:
-# - **LANGSMITH_API_KEY** (for tracing and observability)
-
-# %%
-def _set_env(var: str):
-    if not os.environ.get(var):
-        os.environ[var] = getpass.getpass(f"{var}: ")
-
-# Set up based on LLM provider
-llm_provider = os.environ.get("LLM_PROVIDER", "openrouter")
-
-if llm_provider == "openai":
-    _set_env("OPENAI_API_KEY")
-elif llm_provider in ("gemini", "gemini_finetuned"):
-    _set_env("GEMINI_API_KEY")
-else:
-    _set_env("OPENROUTER_API_KEY")
-
-# Import core components
-from derivatives_gpt_core.core.graph.orchestrator_graph import create_orchestrator
-from derivatives_gpt_core.agents.pricing.graph import create_pricing_agent
-from derivatives_gpt_core.agents.educational.graph import build_educational_agent_graph
-from langchain_core.messages import HumanMessage
-
-# %% [markdown]
-# ## System Architecture Overview
-#
-# DerivativesGPT uses a **multi-agent architecture** with LangGraph:
-#
-# 1. **Orchestrator**: Routes queries to specialized agents
-# 2. **Pricing Agent**: Handles option pricing requests
-# 3. **Educational Agent**: Explains financial concepts with RAG
-#
-# Each agent is a compiled LangGraph with nodes, edges, and state management.
-
-# %%
-# Create the orchestrator (coordinates all agents)
-print("Building multi-agent orchestrator...")
-graph = create_orchestrator()
-print("✓ Orchestrator ready with Pricing and Educational agents\n")
-
-# %% [markdown]
-# ## Example 1: Simple Option Pricing Request
+# ## Component 1: Market Data Fetching
 
 # %%
 print("=" * 80)
-print("EXAMPLE 1: Vanilla Option Pricing")
+print("MARKET DATA FETCHING")
 print("=" * 80)
 
-query1 = "Price a call option on AAPL, strike $150, expiring in 30 days"
-print(f"\nUser Query: {query1}\n")
+ticker = "AAPL"
+spot = fetch_spot_price(ticker)
+vol = fetch_volatility(ticker, period=30)
+rfr = fetch_risk_free_rate()
 
-config = {"configurable": {"thread_id": "demo_pricing"}}
-result1 = graph.invoke({"messages": [HumanMessage(content=query1)]}, config)
-
-# Display final response
-final_message = result1["messages"][-1]
-print("Agent Response:")
-print(final_message.content)
+print(f"\n{ticker} Market Data:")
+print(f"  Spot Price: ${spot:.2f}")
+print(f"  Volatility: {vol:.2%}")
+print(f"  Risk-Free Rate: {rfr:.2%}")
 
 # %% [markdown]
-# ## Example 2: Educational Query with RAG
+# ## Component 2: Option Pricing
 
 # %%
 print("\n" + "=" * 80)
-print("EXAMPLE 2: Educational Query (RAG-Augmented)")
+print("OPTION PRICING")
 print("=" * 80)
 
-query2 = "Explain the Black-Scholes model assumptions"
-print(f"\nUser Query: {query2}\n")
+price = price_european_option.invoke({
+    "spot_price": spot,
+    "strike_price": spot * 1.05,  # 5% OTM
+    "time_to_expiry_days": 30,
+    "risk_free_rate": rfr,
+    "volatility": vol,
+    "option_type": "call"
+})
 
-config2 = {"configurable": {"thread_id": "demo_education"}}
-result2 = graph.invoke({"messages": [HumanMessage(content=query2)]}, config2)
-
-final_message2 = result2["messages"][-1]
-print("Agent Response:")
-print(final_message2.content)
+print(f"\nEuropean Call Option (30 days, 5% OTM):")
+print(f"  Premium: ${price:.2f}")
 
 # %% [markdown]
-# ## Example 3: Exotic Option (Barrier Option)
+# ## Component 3: RAG Retrieval
 
 # %%
 print("\n" + "=" * 80)
-print("EXAMPLE 3: Exotic Barrier Option")
+print("RAG RETRIEVAL")
 print("=" * 80)
 
-query3 = "Price a down-and-out call on SPY, strike $450, barrier at $420, 60 days to expiry"
-print(f"\nUser Query: {query3}\n")
+try:
+    retriever = get_rag_retriever()
+    results = retriever.retrieve("What are the Black-Scholes assumptions?")
 
-config3 = {"configurable": {"thread_id": "demo_exotic"}}
-result3 = graph.invoke({"messages": [HumanMessage(content=query3)]}, config3)
-
-final_message3 = result3["messages"][-1]
-print("Agent Response:")
-print(final_message3.content)
-
-# %% [markdown]
-# ## Example 4: Multi-Leg Strategy
-
-# %%
-print("\n" + "=" * 80)
-print("EXAMPLE 4: Iron Condor Strategy")
-print("=" * 80)
-
-query4 = "Create an iron condor on NVDA with strikes 140/145/160/165, expiring in 45 days"
-print(f"\nUser Query: {query4}\n")
-
-config4 = {"configurable": {"thread_id": "demo_strategy"}}
-result4 = graph.invoke({"messages": [HumanMessage(content=query4)]}, config4)
-
-final_message4 = result4["messages"][-1]
-print("Agent Response:")
-print(final_message4.content)
+    print(f"\nRetrieved {len(results)} sources:")
+    for i, result in enumerate(results, 1):
+        print(f"\n{i}. {result['book']} ({result['page']})")
+        print(f"   Score: {result['score']:.3f}")
+        print(f"   Text: {result['text'][:150]}...")
+except Exception as e:
+    print(f"\nRAG not available: {e}")
 
 # %% [markdown]
-# ## Example 5: Follow-up Conversation
-
-# %%
-print("\n" + "=" * 80)
-print("EXAMPLE 5: Follow-up Conversation with Memory")
-print("=" * 80)
-
-# First query
-query5a = "What is delta hedging?"
-print(f"\nUser: {query5a}")
-
-config5 = {"configurable": {"thread_id": "demo_followup"}}
-result5a = graph.invoke({"messages": [HumanMessage(content=query5a)]}, config5)
-print(f"Agent: {result5a['messages'][-1].content[:200]}...\n")
-
-# Follow-up query (uses same thread_id for memory)
-query5b = "Can you give me an example with actual numbers?"
-print(f"User: {query5b}")
-
-result5b = graph.invoke({"messages": [HumanMessage(content=query5b)]}, config5)
-print(f"Agent: {result5b['messages'][-1].content}")
-
-# %% [markdown]
-# ## Key Features Demonstrated
+# ## Key Insights
 #
-# ### 1. Intelligent Agent Routing
-# - The orchestrator automatically detects intent (pricing vs educational)
-# - Routes to the appropriate specialized agent
+# ### Individual Components Work Independently
+# - Market data from Yahoo Finance
+# - Pricing calculations using mathematical models
+# - RAG retrieval from quantitative finance textbooks
 #
-# ### 2. Natural Language Understanding
-# - Extracts parameters from conversational queries
-# - Handles relative strikes, date descriptions, strategy names
+# ### Full System Integration
+# For the complete multi-agent system with:
+# - Intent classification
+# - Agent routing
+# - Conversation memory
+# - Natural language understanding
 #
-# ### 3. Real-Time Market Data
-# - Fetches spot prices from Yahoo Finance
-# - Calculates implied volatility
-# - Uses current risk-free rates
+# **Run the Chainlit UI**: `chainlit run chainlit_application_launcher.py`
 #
-# ### 4. Multiple Pricing Models
-# - **Black-Scholes**: European options
-# - **Binomial Trees**: American options
-# - **Closed-form**: Exotic options (barrier, Asian, digital)
-# - **Portfolio**: Multi-leg strategies
-#
-# ### 5. RAG-Augmented Education
-# - Retrieves from 11 derivatives textbooks
-# - Hybrid BM25 + FAISS semantic search
-# - Cites sources with book names and chapters
-#
-# ### 6. Conversation Memory
-# - Checkpointed state across turns
-# - Context-aware follow-ups
-# - Thread-based conversation tracking
-#
-# ## Next Steps
-#
-# Explore individual components in detail:
-# - **01_parameter_extraction.py**: Deep dive on NLP parameter extraction
-# - **02_rag_vs_llm.py**: Compare RAG vs pure LLM responses
-# - **03_market_data_fetching.py**: Market data providers and caching
-# - **04_option_pricing_showcase.py**: All pricing models side-by-side
-# - **07_graph_visualization.py**: Visualize agent graphs and routing
+# ### Other Focused Notebooks
+# - **01_parameter_extraction.py**: NLP → structured parameters
+# - **02_rag_vs_llm.py**: Hybrid retrieval deep dive
+# - **03_market_data_fetching.py**: Data provider patterns
+# - **04_option_pricing_showcase.py**: All pricing models
+# - **07_graph_visualization.py**: Agent graph architecture
