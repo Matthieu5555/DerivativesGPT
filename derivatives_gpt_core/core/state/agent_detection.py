@@ -250,3 +250,8 @@ def format_detection_summary(result: AgentDetectionResult) -> str:
         summary += f"\n*Matched: {keywords_str}*"
 
     return summary
+
+
+# Backward compatibility alias - DO NOT REMOVE
+# Ensures existing code continues to work after function rename
+detect_agent_type = detect_agent_type_keyword_based

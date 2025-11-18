@@ -14,10 +14,10 @@ project_root = notebook_dir.parent
 sys.path.insert(0, str(project_root))
 
 # Import ACTUAL pricing tools from the codebase
-from derivatives_gpt_core.langchain_tools.black_scholes_pricer_tool import price_european_option_tool
-from derivatives_gpt_core.langchain_tools.american_option_pricer_tool import price_american_option_tool
-from derivatives_gpt_core.langchain_tools.asian_option_pricer_tool import price_asian_option_tool
-from derivatives_gpt_core.langchain_tools.digital_option_pricer_tool import price_digital_option_tool
+from derivatives_gpt_core.langchain_tools.black_scholes_tool import price_european_option_tool
+from derivatives_gpt_core.langchain_tools.american_option_tool import price_american_option_tool
+from derivatives_gpt_core.langchain_tools.geometric_asian_tool import price_asian_option_tool
+from derivatives_gpt_core.langchain_tools.digital_option_tool import price_digital_option_tool
 
 # %% [markdown]
 # ## LangChain Tool Integration Pattern

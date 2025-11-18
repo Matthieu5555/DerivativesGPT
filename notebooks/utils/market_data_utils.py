@@ -2,7 +2,10 @@
 
 from typing import Dict
 from derivatives_gpt_core.data.market_data.price_provider import SQLPriceProvider
-from derivatives_gpt_core.langchain_tools.volatility_tool import VolatilityCalculator
+from derivatives_gpt_core.langchain_tools.volatility_tool import estimate_annualized_volatility
+from derivatives_gpt_core.langchain_tools.risk_free_rate_tool import get_risk_free_rate_tool
+import yfinance as yf
+import numpy as np
 
 def fetch_spot_price(ticker: str) -> Dict:
     """Fetch current market data from Yahoo Finance."""
@@ -20,11 +23,20 @@ def fetch_spot_price(ticker: str) -> Dict:
     }
 
 def fetch_volatility(ticker: str, lookback_days: int = 30) -> Dict:
-    """Calculate historical volatility."""
-    calc = VolatilityCalculator()
+    """Calculate historical volatility using actual tool."""
+    # Use the actual volatility tool
+    vol_str = estimate_annualized_volatility(ticker, lookback_days)
 
-    # Historical volatility
-    hist_vol = calc._calculate_historical_volatility(ticker, lookback_days)
+    # Parse the volatility from the string result
+    # The tool returns a string like "Annualized volatility: 0.2342"
+    try:
+        hist_vol = float(vol_str.split(":")[-1].strip())
+    except:
+        # Fallback calculation
+        ticker_obj = yf.Ticker(ticker)
+        hist = ticker_obj.history(period=f"{lookback_days}d")
+        returns = np.log(hist['Close'] / hist['Close'].shift(1))
+        hist_vol = returns.std() * np.sqrt(252)
 
     # Mock implied volatility (typically higher)
     implied_vol = hist_vol * 1.15
@@ -38,6 +50,14 @@ def fetch_volatility(ticker: str, lookback_days: int = 30) -> Dict:
     }
 
 def fetch_risk_free_rate() -> float:
-    """Get current risk-free rate."""
-    # Simplified - using 10Y Treasury approximate
-    return 0.045  # 4.5%
+    """Get current risk-free rate using actual tool."""
+    # Use the actual risk-free rate tool
+    result = get_risk_free_rate_tool.invoke({})
+
+    # Parse the rate from the result
+    try:
+        rate = float(result.split(":")[-1].strip().replace("%", "")) / 100
+    except:
+        rate = 0.045  # Fallback
+
+    return rate

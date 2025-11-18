@@ -13,8 +13,7 @@ notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file
 project_root = notebook_dir.parent
 sys.path.insert(0, str(project_root))
 
-from derivatives_gpt_core.agents.educational.rag.hybrid_retriever import HybridRetriever
-from derivatives_gpt_core.agents.educational.rag.llm_reformulation import LLMReformulation
+from derivatives_gpt_core.rag.hybrid_retriever import HybridRetriever
 
 # %% [markdown]
 # ## Initialize the Hybrid Retriever
@@ -22,9 +21,6 @@ from derivatives_gpt_core.agents.educational.rag.llm_reformulation import LLMRef
 # %%
 # The hybrid retriever combines BM25 (keyword search) with FAISS (semantic search)
 retriever = HybridRetriever()
-
-# Query reformulation for better retrieval
-reformulator = LLMReformulation()
 
 # %% [markdown]
 # ## Test Query: Black-Scholes Model
