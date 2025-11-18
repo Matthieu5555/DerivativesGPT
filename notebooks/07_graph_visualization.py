@@ -23,7 +23,6 @@ from derivatives_gpt_core.utils.graph_visualization import (
 )
 from derivatives_gpt_core.agents.pricing.graph import create_pricing_agent
 from derivatives_gpt_core.agents.educational.graph import build_educational_agent_graph
-from derivatives_gpt_core.core.graph.orchestrator_graph import create_orchestrator
 
 # %% [markdown]
 # ## Pricing Agent Graph
@@ -46,15 +45,17 @@ educational_graph = build_educational_agent_graph()
 display_graph_in_notebook(educational_graph)
 
 # %% [markdown]
-# ## Orchestrator Graph (Multi-Agent System)
-
-# %%
-# Create the orchestrator graph
-import asyncio
-orchestrator_graph = create_orchestrator()
-
-# Display in notebook
-display_graph_in_notebook(orchestrator_graph)
+# ## Multi-Agent Orchestration
+#
+# The orchestrator graph coordinates the pricing and educational agents:
+# - Classifies user intent (pricing vs educational vs off-topic)
+# - Routes to the appropriate specialized agent
+# - Handles agent transfers for complex queries
+# - Manages conversation context and memory
+#
+# **Note**: The orchestrator graph visualization is skipped in this notebook
+# to avoid async complexity. See the pricing and educational graphs above
+# for the core agent architectures.
 
 # %% [markdown]
 # ## Export as Mermaid Diagram
@@ -72,12 +73,10 @@ print(f"Length: {len(pricing_mermaid)} characters")
 # Save all graphs as PNG files for documentation
 save_graph_visualization(pricing_graph, "pricing_agent_graph.png", format="png")
 save_graph_visualization(educational_graph, "educational_agent_graph.png", format="png")
-save_graph_visualization(orchestrator_graph, "orchestrator_graph.png", format="png")
 
 # Save as Mermaid format for GitHub/Markdown docs
 save_graph_visualization(pricing_graph, "pricing_agent_graph.mmd", format="mermaid")
 save_graph_visualization(educational_graph, "educational_agent_graph.mmd", format="mermaid")
-save_graph_visualization(orchestrator_graph, "orchestrator_graph.mmd", format="mermaid")
 
 print("All graphs saved successfully!")
 
@@ -99,36 +98,21 @@ for edge in pricing_graph_obj.edges:
     print(f"  {edge.source} → {edge.target}")
 
 # %% [markdown]
-# ## Key Architectural Patterns in the Graphs
-
-# %%
-print("=" * 60)
-print("LangGraph Patterns Demonstrated in DerivativesGPT")
-print("=" * 60)
-
-# Pattern 1: Conditional Routing
-print("\n1. CONDITIONAL ROUTING")
-print("   Pricing Agent:")
-for edge in pricing_graph_obj.edges:
-    if "extract_parameters" in edge.source:
-        print(f"     {edge.source} → {edge.target}")
-
-print("\n   The agent routes based on:")
-print("     - Parameter extraction success/failure")
-print("     - Missing vs complete information")
-print("     - Product type classification")
-
-# Pattern 2: State Management
-print("\n2. STATE MANAGEMENT")
-print("   Total nodes in pricing agent:", len(pricing_graph_obj.nodes))
-print("   Total edges:", len(pricing_graph_obj.edges))
-print("   State flows through all nodes as TypedDict")
-
-# Pattern 3: Multi-Agent System
-print("\n3. MULTI-AGENT ORCHESTRATION")
-print("   Agents in the system:")
-print("     - Pricing Agent (handles option calculations)")
-print("     - Educational Agent (explains concepts)")
-print("     - Orchestrator (routes queries to appropriate agent)")
-
-print("\n" + "=" * 60)
+# ## Key Architectural Patterns Demonstrated
+#
+# ### 1. Conditional Routing
+# The pricing agent uses conditional edges to route based on:
+# - Parameter extraction success/failure
+# - Missing vs complete information
+# - Product type classification
+#
+# ### 2. State Management
+# - State flows through all nodes as TypedDict
+# - Reducers manage state updates (e.g., `add_messages`)
+# - Checkpointers enable conversation memory
+#
+# ### 3. Multi-Agent Orchestration
+# The system includes:
+# - **Pricing Agent**: Handles option calculations and market data
+# - **Educational Agent**: Explains concepts with pedagogical patterns
+# - **Orchestrator**: Routes queries to appropriate agent based on intent

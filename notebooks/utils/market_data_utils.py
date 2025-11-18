@@ -9,9 +9,16 @@ import numpy as np
 
 def fetch_spot_price(ticker: str) -> float:
     """Fetch current spot price from Yahoo Finance."""
-    provider = SQLPriceProvider()
-    price = provider.get_current_price(ticker)
-    return price
+    try:
+        ticker_obj = yf.Ticker(ticker)
+        # Get the most recent close price
+        hist = ticker_obj.history(period="1d")
+        if hist.empty:
+            raise ValueError(f"No data available for ticker {ticker}")
+        price = hist['Close'].iloc[-1]
+        return float(price)
+    except Exception as e:
+        raise ValueError(f"Failed to fetch price for {ticker}: {str(e)}")
 
 def fetch_volatility(ticker: str, period: int = 30) -> float:
     """Calculate historical volatility."""

@@ -15,6 +15,10 @@ notebook_dir = Path(os.getcwd()) if '__file__' not in globals() else Path(__file
 project_root = notebook_dir.parent
 sys.path.insert(0, str(project_root))
 
+# IMPORTANT: Change working directory to project root for RAG paths to resolve correctly
+original_cwd = os.getcwd()
+os.chdir(project_root)
+
 # Load environment variables from .env file
 load_dotenv()
 

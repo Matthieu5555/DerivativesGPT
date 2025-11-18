@@ -1,0 +1,40 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	extract_parameters(extract_parameters)
+	validate_inputs(validate_inputs)
+	decompose_strategy(decompose_strategy)
+	create_plan(create_plan)
+	rag_retrieval(rag_retrieval)
+	execute_tasks(execute_tasks)
+	aggregate_results(aggregate_results)
+	narrate_results(narrate_results)
+	clarify_parameters(clarify_parameters)
+	recognize_but_refuse(recognize_but_refuse)
+	finalize(finalize)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> extract_parameters;
+	aggregate_results --> narrate_results;
+	create_plan --> rag_retrieval;
+	decompose_strategy -. &nbsp;create_execution_plan&nbsp; .-> create_plan;
+	decompose_strategy -.-> recognize_but_refuse;
+	execute_tasks -.-> aggregate_results;
+	execute_tasks -.-> narrate_results;
+	extract_parameters -.-> clarify_parameters;
+	extract_parameters -.-> recognize_but_refuse;
+	extract_parameters -.-> validate_inputs;
+	narrate_results --> finalize;
+	rag_retrieval --> execute_tasks;
+	validate_inputs -.-> clarify_parameters;
+	validate_inputs -.-> decompose_strategy;
+	validate_inputs -.-> recognize_but_refuse;
+	clarify_parameters --> __end__;
+	finalize --> __end__;
+	recognize_but_refuse --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
