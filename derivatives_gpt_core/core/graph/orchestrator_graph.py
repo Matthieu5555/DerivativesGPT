@@ -271,8 +271,9 @@ def build_orchestrator_with_transfers() -> StateGraph:
     Returns:
         StateGraph with transfer support
     """
-    # TODO: Implement transfer detection and routing
-    # For now, return standard orchestrator
+    # Transfer support not yet implemented - using standard orchestrator
+    # When implementing: add transfer detection node after agent routing
+    # Transfer criteria: confidence < threshold or explicit transfer request
     return build_orchestrator_graph()
 
 
@@ -280,95 +281,16 @@ def build_orchestrator_with_transfers() -> StateGraph:
 # VISUALIZATION
 # ============================================================================
 
-def visualize_orchestrator_graph():
-    """
-    Generate a visual representation of the orchestrator graph.
-
-    Returns ASCII art diagram of the graph flow.
-    """
-    diagram = """
-Orchestrator Graph (Multi-Agent System)
-========================================
-
-                        ┌─────────────┐
-                        │   START     │
-                        │ (User Query)│
-                        └──────┬──────┘
-                               │
-                               ▼
-                    ┌──────────────────┐
-                    │ classify_intent  │
-                    │ • Binary check   │
-                    │ • Ticker extract │
-                    │ • Chart display  │
-                    └────────┬─────────┘
-                             │
-                             ▼
-                    ┌──────────────────┐
-                    │ detect_agent     │
-                    │ • Keyword detect │
-                    │ • Confidence calc│
-                    │ • Agent select   │
-                    └────────┬─────────┘
-                             │
-               ┌─────────────┼─────────────┐
-               │             │             │
-       [Educational]    [Pricing]    [Off-Topic]
-               │             │             │
-               ▼             ▼             ▼
-    ┌──────────────┐ ┌──────────────┐ ┌──────────┐
-    │ EDUCATIONAL  │ │   PRICING    │ │OFF-TOPIC │
-    │    AGENT     │ │    AGENT     │ │ HANDLER  │
-    ├──────────────┤ ├──────────────┤ ├──────────┤
-    │• RAG Query   │ │• Extract     │ │• Polite  │
-    │• Generate    │ │• Validate    │ │  redirect│
-    │• Assess      │ │• Decompose   │ └────┬─────┘
-    │• Rewrite     │ │• Plan        │      │
-    │• Verify      │ │• Execute     │      │
-    │              │ │• Narrate     │      │
-    └──────┬───────┘ └──────┬───────┘      │
-           │                │              │
-           └────────┬───────┴──────────────┘
-                    │
-                    ▼
-              ┌───────────┐
-              │    END    │
-              │  (Result) │
-              └───────────┘
-
-Agent Selection Logic:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Educational keywords > Pricing keywords → Educational
-Pricing keywords > Educational keywords → Pricing
-Equal or unclear                       → Use response_type
-response_type="explain_concept"        → Educational
-response_type="can_price"              → Pricing
-response_type="off_topic"              → Off-Topic
-
-State Management:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Each agent has isolated field access:
-• Educational: explanation_text, quality_score, etc.
-• Pricing: spot_price, execution_plan, option_price, etc.
-• Shared: messages, response_type, ticker, etc.
-
-Checkpointing:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Thread IDs are hierarchical:
-• session_123                → Orchestrator state
-• session_123.educational    → Educational state
-• session_123.pricing        → Pricing state
-"""
-    return diagram
-
-
 def get_agent_statistics():
     """
-    Get statistics about agent usage (for monitoring).
+    # Called by: monitoring dashboards, performance analysis scripts
+    # Returns placeholder statistics until proper telemetry is implemented
+    # To enable real tracking: integrate with LangSmith or custom telemetry
 
     Returns dict with agent execution stats.
     """
-    # TODO: Implement proper statistics tracking
+    # Placeholder values - replace with actual telemetry when monitoring is set up
+    # Integration point for LangSmith, Datadog, or custom metrics collection
     return {
         "educational_invocations": 0,
         "pricing_invocations": 0,
@@ -382,4 +304,7 @@ if __name__ == "__main__":
     print("Testing orchestrator graph compilation...")
     graph = build_orchestrator_graph()
     print("Orchestrator graph compiled successfully!")
-    print(visualize_orchestrator_graph())
+
+    # Use proper visualization for development
+    from derivatives_gpt_core.utils.graph_visualization import save_graph_visualization
+    save_graph_visualization(graph, "orchestrator_graph.png", format="png")

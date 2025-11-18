@@ -206,100 +206,12 @@ def create_pricing_agent() -> StateGraph:
 # VISUALIZATION
 # ============================================================================
 
-def visualize_pricing_graph():
-    """
-    Generate a visual representation of the pricing graph.
-
-    Returns ASCII art diagram of the graph flow.
-    """
-    diagram = """
-Pricing Agent Graph
-===================
-
-                        ┌─────────────┐
-                        │   START     │
-                        └──────┬──────┘
-                               │
-                               ▼
-                    ┌──────────────────┐
-                    │extract_parameters│
-                    └────────┬─────────┘
-                             │
-               ┌─────────────┼─────────────┐
-               │             │             │
-          [Success]      [Failed]      [Max attempts]
-               │             │             │
-               ▼             ▼             │
-        ┌────────────┐  ┌─────────────┐   │
-        │ validate_  │  │  clarify_   │   │
-        │  inputs    │  │ parameters  │   │
-        └─────┬──────┘  └──────┬──────┘   │
-              │                │           │
-       [Valid]│          (wait user)       │
-              │                ▼           │
-              │               END          │
-              │                            │
-              │                            │
-              ▼                            ▼
-       ┌────────────┐              ┌─────────────┐
-       │decompose_  │              │  recognize_ │
-       │ strategy   │              │  but_refuse │
-       └─────┬──────┘              └──────┬──────┘
-             │                            │
-      [Can execute]                       ▼
-             │                           END
-             ▼
-      ┌────────────┐
-      │create_plan │
-      └─────┬──────┘
-            │
-            ▼
-      ┌────────────┐
-      │execute_    │
-      │  tasks     │
-      └─────┬──────┘
-            │
-     ┌──────┴──────┐
-     │             │
-[Multi-leg]   [Single]
-     │             │
-     ▼             │
-┌──────────┐       │
-│aggregate_│       │
-│ results  │       │
-└────┬─────┘       │
-     │             │
-     └──────┬──────┘
-            │
-            ▼
-      ┌────────────┐
-      │  narrate_  │
-      │  results   │
-      └─────┬──────┘
-            │
-            ▼
-      ┌────────────┐
-      │ finalize   │
-      └─────┬──────┘
-            │
-            ▼
-      ┌────────────┐
-      │    END     │
-      └────────────┘
-
-Key Features:
-- Max 3 extraction attempts
-- Dual-mode routing (eval vs prod)
-- Parallel task execution
-- Multi-leg aggregation
-- Natural language narration
-"""
-    return diagram
-
-
 if __name__ == "__main__":
     # Test graph compilation
     print("Testing pricing agent graph compilation...")
     graph = build_pricing_agent_graph()
     print("Graph compiled successfully!")
-    print(visualize_pricing_graph())
+
+    # Use proper visualization for development
+    from derivatives_gpt_core.utils.graph_visualization import save_graph_visualization
+    save_graph_visualization(graph, "pricing_graph.png", format="png")

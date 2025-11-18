@@ -1,12 +1,12 @@
 """Utilities for market data fetching."""
 
 from typing import Dict
-from derivatives_gpt_core.data.market_data.price_provider import PriceProvider
+from derivatives_gpt_core.data.market_data.price_provider import SQLPriceProvider
 from derivatives_gpt_core.langchain_tools.volatility_tool import VolatilityCalculator
 
 def fetch_spot_price(ticker: str) -> Dict:
     """Fetch current market data from Yahoo Finance."""
-    provider = PriceProvider()
+    provider = SQLPriceProvider()
     data = provider.get_current_price(ticker)
 
     return {

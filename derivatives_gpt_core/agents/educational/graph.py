@@ -295,113 +295,12 @@ def create_educational_agent() -> StateGraph:
     return build_educational_agent_graph()
 
 
-# ============================================================================
-# VISUALIZATION
-# ============================================================================
-
-def visualize_educational_graph():
-    """
-    Generate visual representation of the enhanced educational graph.
-
-    Returns ASCII art diagram of the graph flow.
-    """
-    diagram = """
-Enhanced Educational Agent Graph
-=================================
-
-                        ┌──────────────────┐
-                        │      START       │
-                        │  (User Question) │
-                        └────────┬─────────┘
-                                 │
-                                 ▼
-                    ┌────────────────────────┐
-                    │ classify_topic         │
-                    │ • Same topic?          │
-                    │ • Topic change?        │
-                    │ • Financial-related?   │
-                    └──────────┬─────────────┘
-                               │
-                               ▼
-                    ┌────────────────────────┐
-                    │  check_rag             │
-                    └──────────┬─────────────┘
-                               │
-                    ┌──────────┴──────────┐
-                    │                     │
-            [No RAG sources]      [Has RAG sources]
-                    │                     │
-                    ▼                     │
-            ┌─────────────┐               │
-            │rag_retrieval│               │
-            └──────┬──────┘               │
-                   │                      │
-                   └──────────┬───────────┘
-                              │
-                              ▼
-                    ┌──────────────────┐
-                    │   web_search     │
-                    │  (Tavily API)    │
-                    └────────┬─────────┘
-                             │
-                             ▼
-                ┌─────────────────────────┐
-                │ generate_explanation    │
-                │ Mode: initial/followup  │
-                │ Template: structured    │
-                └──────────┬──────────────┘
-                           │
-                ┌──────────┴───────────┐
-                │                      │
-         [followup mode]        [initial mode]
-                │                      │
-                ▼                      ▼
-         ┌────────────┐      ┌──────────────────┐
-         │  finalize  │      │  assess_quality  │
-         └─────┬──────┘      └────────┬─────────┘
-               │                      │
-               │           ┌──────────┴──────────┐
-               │           │                     │
-               │    [Quality ≥ 0.7]      [Quality < 0.7]
-               │           │             [attempts < 3]
-               │           │                     │
-               │           ▼                     ▼
-               │    ┌─────────────┐    ┌──────────────────┐
-               │    │  verify_    │    │ rewrite_         │
-               │    │understanding│    │ explanation      │
-               │    └──────┬──────┘    └────────┬─────────┘
-               │           │                    │
-               │           │                    └─────────┐
-               │           │                              │
-               │           ▼                              │
-               │    ┌────────────┐          (loop back to generate)
-               │    │  finalize  │
-               │    └─────┬──────┘
-               │          │
-               └──────────┴──────────┐
-                                     │
-                                     ▼
-                              ┌───────────┐
-                              │    END    │
-                              └───────────┘
-
-Key Features:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Topic continuity tracking (same topic vs new topic)
-- Web search integration (Tavily) for latest information
-- Dual conversation modes:
-   • initial_explanation: Full structured template (TL;DR → Formal)
-   • followup_conversation: Concise, conversational answers
-- Quality-based iterative improvement (max 3 attempts)
-- RAG + Web search augmentation
-- Verification questions for comprehension check
-"""
-    return diagram
-
-
 if __name__ == "__main__":
     # Test graph compilation
     print("Testing enhanced educational agent graph compilation...")
     graph = build_educational_agent_graph()
     print("Graph compiled successfully!")
-    print(visualize_educational_graph())
+
+    # Use proper visualization for development
+    from derivatives_gpt_core.utils.graph_visualization import save_graph_visualization
+    save_graph_visualization(graph, "educational_graph.png", format="png")

@@ -14,6 +14,8 @@ import numpy as np
 from scipy.stats import norm
 from typing import Literal
 
+from derivatives_gpt_core.utils.time_conversion import convert_days_to_years
+
 
 class InvalidParameterError(Exception):
     """Raised when pricing parameters are invalid."""
@@ -122,8 +124,3 @@ def calculate_digital_option_price(
         price = payout * discount_factor * norm.cdf(-d2)
 
     return float(price)
-
-
-def convert_days_to_years(days: float, days_per_year: int = 365) -> float:
-    """Convert days to years."""
-    return days / days_per_year

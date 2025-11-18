@@ -190,6 +190,7 @@ class InvalidConfigError(ConfigurationError):
 # LEGACY COMPATIBILITY
 # =============================================================================
 
-# Alias for backward compatibility with existing code
-# TODO: Remove after migration to new exception hierarchy
+# Alias maintained for backward compatibility with pricing_math modules
+# Used by: pricing_math/black_scholes_formula.py, pricing_math/american_option_pricer.py
+# Migration status: Keep until pricing_math modules are updated to use BlackScholesError directly
 InvalidParameterError = BlackScholesError
