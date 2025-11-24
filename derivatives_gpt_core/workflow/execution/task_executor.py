@@ -284,18 +284,15 @@ def _calculate_barrier_option_price(
     """
     Calculate barrier option price using Merton-Reiner formulas.
 
-    Extracts barrier parameters from state and dispatches to appropriate formula.
+    Functional approach: Prioritize parameters from state over parsing product_type string.
+    Falls back to string parsing for backward compatibility.
     """
     from derivatives_gpt_core.features.barrier.pricing import price_barrier_option
 
-    # Extract barrier level from state (should be set during parameter extraction)
-    barrier_level = getattr(state, 'barrier_level', None)
-    if not barrier_level:
-        # Try to infer from state or use a default
-        logger.warning("No barrier level found in state, using 80% of spot for down barrier")
-        barrier_level = state.spot_price * 0.8 if "down" in option_type else state.spot_price * 1.2
+    # Priority 1: Extract barrier_type from state (functional approach)
+    barrier_type_state = getattr(state, 'barrier_type', None)
 
-    # Map option_type to barrier_type and option direction
+    # Priority 2: Parse from product_type string (backward compatibility)
     barrier_type_map = {
         "down_out_call": ("down-out", "call"),
         "down_out_put": ("down-out", "put"),
@@ -307,7 +304,31 @@ def _calculate_barrier_option_price(
         "up_in_put": ("up-in", "put"),
     }
 
-    barrier_type, option_dir = barrier_type_map.get(option_type, ("down-out", "call"))
+    if barrier_type_state:
+        # Use barrier_type from state (functional approach)
+        barrier_type = barrier_type_state
+        # Extract direction from option_type string
+        option_dir = "call" if "call" in option_type.lower() else "put"
+        logger.info(f"Using barrier_type from state: {barrier_type}")
+    elif option_type in barrier_type_map:
+        # Fall back to parsing product_type (backward compatibility)
+        barrier_type, option_dir = barrier_type_map[option_type]
+        logger.info(f"Parsed barrier_type from product_type string: {barrier_type}")
+    else:
+        # Default fallback
+        barrier_type, option_dir = ("down-out", "call")
+        logger.warning(f"Could not determine barrier_type from state or product_type '{option_type}', defaulting to {barrier_type} {option_dir}")
+
+    # Extract barrier level from state
+    barrier_level = getattr(state, 'barrier_level', None)
+    if not barrier_level:
+        # Infer reasonable default based on barrier type
+        if "down" in barrier_type:
+            barrier_level = state.spot_price * 0.8
+            logger.warning(f"No barrier level in state, defaulting to 80% of spot: ${barrier_level:.2f}")
+        else:
+            barrier_level = state.spot_price * 1.2
+            logger.warning(f"No barrier level in state, defaulting to 120% of spot: ${barrier_level:.2f}")
 
     return price_barrier_option(
         barrier_type=barrier_type,

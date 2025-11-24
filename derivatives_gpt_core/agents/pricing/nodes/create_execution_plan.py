@@ -138,6 +138,14 @@ async def create_execution_plan(state: PricingState) -> Dict[str, Any]:
     else:
         context_parts.append("MISSING: time to expiry")
 
+    # Add exotic option parameters if present (functional approach)
+    if hasattr(state, 'barrier_type') and state.barrier_type:
+        context_parts.append(f"Barrier type: {state.barrier_type}")
+    if hasattr(state, 'barrier_level') and state.barrier_level:
+        context_parts.append(f"Barrier level: ${state.barrier_level:.2f}")
+    if hasattr(state, 'rebate') and state.rebate:
+        context_parts.append(f"Rebate: ${state.rebate:.2f}")
+
     context = "\n".join(context_parts)
 
     # Build legs description for prompt

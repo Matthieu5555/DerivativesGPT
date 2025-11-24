@@ -309,13 +309,35 @@ async def extract_parameters(state: PricingState) -> Dict[str, Any]:
         if validated_params.risk_free_rate is not None:
             response_dict["risk_free_rate"] = float(validated_params.risk_free_rate)
 
-        # IMPORTANT: Construct product_type from style + direction
-        # Priority: 1) Extracted option_style, 2) option_type_classified, 3) Default to European
+        # Pass through exotic option parameters (barrier, asian, etc.)
+        # These will be used by executor to route to correct pricing function
+        if hasattr(validated_params, 'barrier_level') and validated_params.barrier_level is not None:
+            response_dict["barrier_level"] = float(validated_params.barrier_level)
+            logger.info(f"Extracted barrier_level: {validated_params.barrier_level}")
+
+        if hasattr(validated_params, 'barrier_type') and validated_params.barrier_type is not None:
+            response_dict["barrier_type"] = validated_params.barrier_type
+            logger.info(f"Extracted barrier_type: {validated_params.barrier_type}")
+
+        if hasattr(validated_params, 'rebate') and validated_params.rebate is not None:
+            response_dict["rebate"] = float(validated_params.rebate)
+            logger.info(f"Extracted rebate: {validated_params.rebate}")
+
+        # IMPORTANT: Construct product_type from exotic params + direction
+        # Functional approach: Check for exotic parameters first, then fall back to style/classification
         if validated_params.option_type is not None:
             direction = validated_params.option_type  # "call" or "put"
 
-            # Check if option_style was explicitly extracted (NEW!)
-            if hasattr(validated_params, 'option_style') and validated_params.option_style:
+            # Priority 1: Check for exotic-specific parameters (functional approach)
+            if hasattr(validated_params, 'barrier_type') and validated_params.barrier_type:
+                # Barrier option - construct product_type from barrier_type
+                # e.g., "down-and-out" -> "down_out_call"
+                barrier_prefix = validated_params.barrier_type.replace("-and-", "_").replace("-", "_")
+                product_type = f"{barrier_prefix}_{direction}"
+                logger.info(f"Constructed barrier product_type: {product_type} from barrier_type='{validated_params.barrier_type}'")
+
+            # Priority 2: Check if option_style was explicitly extracted
+            elif hasattr(validated_params, 'option_style') and validated_params.option_style:
                 style = validated_params.option_style.lower()
                 if style == "american":
                     product_type = f"american_{direction}"
@@ -325,12 +347,16 @@ async def extract_parameters(state: PricingState) -> Dict[str, Any]:
                     product_type = f"geometric_asian_{direction}"
                 elif style == "european":
                     product_type = f"vanilla_european_{direction}"
+                elif style == "barrier":
+                    # Barrier style mentioned but no barrier_type - use generic
+                    product_type = f"barrier_{direction}"
+                    logger.warning(f"Barrier style detected but no barrier_type, using generic '{product_type}'")
                 else:
                     product_type = f"vanilla_european_{direction}"
                     logger.warning(f"Unknown style '{style}', defaulting to vanilla European")
                 logger.info(f"Using explicitly extracted option_style: {style}")
 
-            # Fall back to classification if no explicit style
+            # Priority 3: Fall back to classification if no explicit style or exotic params
             elif state.option_type_classified:
                 classified = state.option_type_classified.lower()
 
@@ -348,13 +374,13 @@ async def extract_parameters(state: PricingState) -> Dict[str, Any]:
                     product_type = f"vanilla_european_{direction}"
                     logger.warning(f"Unknown classification '{classified}', defaulting to vanilla")
             else:
-                # No style or classification - default to vanilla European
+                # No style, classification, or exotic params - default to vanilla European
                 product_type = f"vanilla_european_{direction}"
                 logger.info("No option style specified, defaulting to European")
 
             response_dict["option_type"] = direction  # Keep direction for backward compat
             response_dict["product_type"] = product_type  # Full product type for pricing
-            logger.info(f"Constructed product_type: {product_type} from style='{getattr(validated_params, 'option_style', None)}' classification='{state.option_type_classified}' and direction='{direction}'")
+            logger.info(f"Constructed product_type: {product_type} from exotic_params={bool(response_dict.get('barrier_type'))} style='{getattr(validated_params, 'option_style', None)}' classification='{state.option_type_classified}' direction='{direction}'")
         elif state.option_type_classified:
             # Have classification but no direction extracted - use classification as-is
             response_dict["option_type"] = state.option_type_classified

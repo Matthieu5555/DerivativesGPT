@@ -160,4 +160,33 @@ Output:
     ],
     "can_execute": true,
     "complexity": "simple"
-}"""
+}
+
+Example 4: Barrier option (down-and-out call)
+Input context:
+Product type: down_out_call
+Asset class: equity
+Ticker: TSLA
+Has spot: $391.09
+Barrier type: down-and-out
+Barrier level: $200.00
+Has strike: $250.00
+Expiry: 182.5 days
+
+Output:
+{
+    "tasks": [
+        {"id": "fetch_vol", "type": "volatility", "params": {"ticker": "TSLA"}},
+        {"id": "fetch_rate", "type": "risk_free_rate", "params": {}},
+        {"id": "price_down_out_call", "type": "pricing", "params": {"option_type": "down_out_call", "strike": 250.0}, "depends_on": ["fetch_vol", "fetch_rate"]}
+    ],
+    "parallel_groups": [
+        ["fetch_vol", "fetch_rate"],
+        ["price_down_out_call"]
+    ],
+    "can_execute": true,
+    "complexity": "simple"
+}
+
+IMPORTANT: For barrier options, the executor will automatically read barrier_level, barrier_type, and rebate from state.
+You only need to pass the product_type (e.g., "down_out_call") in the task params."""
