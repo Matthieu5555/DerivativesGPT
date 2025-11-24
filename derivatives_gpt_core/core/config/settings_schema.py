@@ -6,7 +6,7 @@ Defines Pydantic Settings model for configuration loaded from environment variab
 
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
+from pydantic import Field, model_validator
 from typing import Literal
 
 
@@ -129,24 +129,24 @@ class Settings(BaseSettings):
 
     # === SPECIALIZED NODE MODELS ===
     # Classification
-    classification_openai_model: str = Field(default="gpt-4o-mini")
-    classification_gemini_model: str = Field(default="gemini-1.5-flash")
-    classification_openrouter_model: str = Field(default="anthropic/claude-3-haiku:beta")
+    classification_openai_model: str = Field(default="")
+    classification_gemini_model: str = Field(default="")
+    classification_openrouter_model: str = Field(default="")
 
     # Planning
-    planner_openai_model: str = Field(default="gpt-4o-mini")
-    planner_gemini_model: str = Field(default="gemini-1.5-flash")
-    planner_openrouter_model: str = Field(default="anthropic/claude-3-haiku:beta")
+    planner_openai_model: str = Field(default="")
+    planner_gemini_model: str = Field(default="")
+    planner_openrouter_model: str = Field(default="")
 
     # Decomposition
-    decomposer_openai_model: str = Field(default="gpt-4o-mini")
-    decomposer_gemini_model: str = Field(default="gemini-1.5-flash")
-    decomposer_openrouter_model: str = Field(default="anthropic/claude-3-haiku:beta")
+    decomposer_openai_model: str = Field(default="")
+    decomposer_gemini_model: str = Field(default="")
+    decomposer_openrouter_model: str = Field(default="")
 
     # Validation
-    validator_openai_model: str = Field(default="gpt-4o-mini")
-    validator_gemini_model: str = Field(default="gemini-1.5-flash")
-    validator_openrouter_model: str = Field(default="anthropic/claude-3-haiku:beta")
+    validator_openai_model: str = Field(default="")
+    validator_gemini_model: str = Field(default="")
+    validator_openrouter_model: str = Field(default="")
 
     # === AGENT BEHAVIOR ===
     max_agent_iterations: int = Field(
@@ -165,3 +165,52 @@ class Settings(BaseSettings):
     # === WEB SEARCH ===
     enable_web_search: bool = Field(default=True, description="Enable web search augmentation")
     tavily_api_key: str = Field(default="", description="Tavily API key")
+
+    @model_validator(mode='after')
+    def set_specialized_model_defaults(self):
+        """
+        Auto-populate specialized model fields with main provider model if not explicitly set.
+
+        This ensures DRY configuration - you only need to set the main model
+        (e.g., OPENROUTER_MODEL) and all specialized nodes inherit it unless overridden.
+
+        Example:
+            OPENROUTER_MODEL=google/gemini-2.5-flash-lite
+            → classification_openrouter_model defaults to google/gemini-2.5-flash-lite
+            → planner_openrouter_model defaults to google/gemini-2.5-flash-lite
+            → etc.
+
+        You can still override individual nodes:
+            CLASSIFICATION_OPENROUTER_MODEL=anthropic/claude-3-5-sonnet
+        """
+        # OpenAI models
+        if not self.classification_openai_model:
+            self.classification_openai_model = self.openai_model
+        if not self.planner_openai_model:
+            self.planner_openai_model = self.openai_model
+        if not self.decomposer_openai_model:
+            self.decomposer_openai_model = self.openai_model
+        if not self.validator_openai_model:
+            self.validator_openai_model = self.openai_model
+
+        # Gemini models
+        if not self.classification_gemini_model:
+            self.classification_gemini_model = self.gemini_model
+        if not self.planner_gemini_model:
+            self.planner_gemini_model = self.gemini_model
+        if not self.decomposer_gemini_model:
+            self.decomposer_gemini_model = self.gemini_model
+        if not self.validator_gemini_model:
+            self.validator_gemini_model = self.gemini_model
+
+        # OpenRouter models
+        if not self.classification_openrouter_model:
+            self.classification_openrouter_model = self.openrouter_model
+        if not self.planner_openrouter_model:
+            self.planner_openrouter_model = self.openrouter_model
+        if not self.decomposer_openrouter_model:
+            self.decomposer_openrouter_model = self.openrouter_model
+        if not self.validator_openrouter_model:
+            self.validator_openrouter_model = self.openrouter_model
+
+        return self

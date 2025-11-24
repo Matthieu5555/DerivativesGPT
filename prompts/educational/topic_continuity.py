@@ -97,12 +97,12 @@ Examples:
 - General chitchat
 
 RESPOND IN THIS EXACT JSON FORMAT:
-{{
+{
   "is_same_topic": <true or false>,
   "is_financial_related": <true or false>,
   "extracted_topic": "<concise topic name from current question>",
   "reasoning": "<brief explanation of your classification>"
-}}
+}
 
 IMPORTANT:
 - If this is the FIRST question (no previous context), always return is_same_topic: false

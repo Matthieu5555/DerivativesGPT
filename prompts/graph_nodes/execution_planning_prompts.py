@@ -19,14 +19,14 @@ CRITICAL REQUIREMENT: Use the FULL product_type from state for pricing tasks.
 The full product_type determines which pricing engine to use (Black-Scholes vs Bjerksund-Stensland vs Geometric Asian formula).
 
 ###OUTPUT FORMAT###
-{{
+{
     "tasks": [
-        {{"id": "fetch_spot", "type": "market_data", "params": {{"ticker": "AAPL"}}}},
-        {{"id": "fetch_vol", "type": "volatility", "params": {{"ticker": "AAPL"}}}},
-        {{"id": "fetch_rate", "type": "risk_free_rate", "params": {{}}}},
-        {{"id": "price_american_call", "type": "pricing", "params": {{"option_type": "american_call", "strike": 150}}, "depends_on": ["fetch_spot", "fetch_vol", "fetch_rate"]}},
-        {{"id": "price_digital_put", "type": "pricing", "params": {{"option_type": "digital_put", "strike": 100}}, "depends_on": ["fetch_spot", "fetch_vol", "fetch_rate"]}},
-        {{"id": "aggregate", "type": "sum", "params": {{}}, "depends_on": ["price_american_call", "price_digital_put"]}}
+        {"id": "fetch_spot", "type": "market_data", "params": {"ticker": "AAPL"}},
+        {"id": "fetch_vol", "type": "volatility", "params": {"ticker": "AAPL"}},
+        {"id": "fetch_rate", "type": "risk_free_rate", "params": {}},
+        {"id": "price_american_call", "type": "pricing", "params": {"option_type": "american_call", "strike": 150}, "depends_on": ["fetch_spot", "fetch_vol", "fetch_rate"]},
+        {"id": "price_digital_put", "type": "pricing", "params": {"option_type": "digital_put", "strike": 100}, "depends_on": ["fetch_spot", "fetch_vol", "fetch_rate"]},
+        {"id": "aggregate", "type": "sum", "params": {}, "depends_on": ["price_american_call", "price_digital_put"]}
     ],
     "parallel_groups": [
         ["fetch_spot", "fetch_vol", "fetch_rate"],
@@ -35,7 +35,7 @@ The full product_type determines which pricing engine to use (Black-Scholes vs B
     ],
     "can_execute": true,
     "complexity": "simple" | "medium" | "complex"
-}}
+}
 
 CRITICAL DEPENDENCY RULES (MUST FOLLOW):
 1. Pricing tasks MUST NEVER be in the same group as fetch tasks
@@ -101,16 +101,16 @@ Has rate: 4.5%
 Expiry: 90 days
 
 Output:
-{{
+{
     "tasks": [
-        {{"id": "price_american_put", "type": "pricing", "params": {{"option_type": "american_put", "strike": null}}, "depends_on": []}}
+        {"id": "price_american_put", "type": "pricing", "params": {"option_type": "american_put", "strike": null}, "depends_on": []}
     ],
     "parallel_groups": [
         ["price_american_put"]
     ],
     "can_execute": true,
     "complexity": "simple"
-}}
+}
 
 Example 2: Straddle (multi-leg, missing data)
 Input context:
@@ -122,14 +122,14 @@ Legs: 2 legs
   Leg 2: put strike=$150 position=long
 
 Output:
-{{
+{
     "tasks": [
-        {{"id": "fetch_spot", "type": "market_data", "params": {{"ticker": "AAPL"}}}},
-        {{"id": "fetch_vol", "type": "volatility", "params": {{"ticker": "AAPL"}}}},
-        {{"id": "fetch_rate", "type": "risk_free_rate", "params": {{}}}},
-        {{"id": "price_call", "type": "pricing", "params": {{"option_type": "call", "strike": 150}}, "depends_on": ["fetch_spot", "fetch_vol", "fetch_rate"]}},
-        {{"id": "price_put", "type": "pricing", "params": {{"option_type": "put", "strike": 150}}, "depends_on": ["fetch_spot", "fetch_vol", "fetch_rate"]}},
-        {{"id": "aggregate", "type": "sum", "params": {{}}, "depends_on": ["price_call", "price_put"]}}
+        {"id": "fetch_spot", "type": "market_data", "params": {"ticker": "AAPL"}},
+        {"id": "fetch_vol", "type": "volatility", "params": {"ticker": "AAPL"}},
+        {"id": "fetch_rate", "type": "risk_free_rate", "params": {}},
+        {"id": "price_call", "type": "pricing", "params": {"option_type": "call", "strike": 150}, "depends_on": ["fetch_spot", "fetch_vol", "fetch_rate"]},
+        {"id": "price_put", "type": "pricing", "params": {"option_type": "put", "strike": 150}, "depends_on": ["fetch_spot", "fetch_vol", "fetch_rate"]},
+        {"id": "aggregate", "type": "sum", "params": {}, "depends_on": ["price_call", "price_put"]}
     ],
     "parallel_groups": [
         ["fetch_spot", "fetch_vol", "fetch_rate"],
@@ -138,7 +138,7 @@ Output:
     ],
     "can_execute": true,
     "complexity": "medium"
-}}
+}
 
 Example 3: Digital call (exotic)
 Input context:
@@ -148,11 +148,11 @@ Ticker: TSLA
 Has spot: $250.00
 
 Output:
-{{
+{
     "tasks": [
-        {{"id": "fetch_vol", "type": "volatility", "params": {{"ticker": "TSLA"}}}},
-        {{"id": "fetch_rate", "type": "risk_free_rate", "params": {{}}}},
-        {{"id": "price_digital_call", "type": "pricing", "params": {{"option_type": "digital_call", "strike": null}}, "depends_on": ["fetch_vol", "fetch_rate"]}}
+        {"id": "fetch_vol", "type": "volatility", "params": {"ticker": "TSLA"}},
+        {"id": "fetch_rate", "type": "risk_free_rate", "params": {}},
+        {"id": "price_digital_call", "type": "pricing", "params": {"option_type": "digital_call", "strike": null}, "depends_on": ["fetch_vol", "fetch_rate"]}
     ],
     "parallel_groups": [
         ["fetch_vol", "fetch_rate"],
@@ -160,4 +160,4 @@ Output:
     ],
     "can_execute": true,
     "complexity": "simple"
-}}"""
+}"""

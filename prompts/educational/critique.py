@@ -55,7 +55,7 @@ Evaluate this explanation on the following criteria (score each 1-5):
    - 1: Too simple or too complex for this level
 
 RESPOND IN THIS EXACT JSON FORMAT:
-{{
+{
   "clarity": <score>,
   "accuracy": <score>,
   "completeness": <score>,
@@ -65,7 +65,7 @@ RESPOND IN THIS EXACT JSON FORMAT:
   "strengths": "<brief description of what works well>",
   "weaknesses": "<brief description of what needs improvement>",
   "specific_improvements": "<concrete suggestions for improvement>"
-}}
+}
 
 Provide your evaluation:"""
 

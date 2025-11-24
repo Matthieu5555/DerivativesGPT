@@ -46,13 +46,13 @@ GUIDELINES:
 - Questions should help identify if user truly understood
 
 RESPOND IN THIS EXACT FORMAT:
-{{
+{
   "verification_questions": [
     "Your first question here?",
     "Your second question here?"
   ],
   "rationale": "Brief explanation of what these questions will verify"
-}}
+}
 
 Generate verification questions:"""
 
@@ -96,13 +96,13 @@ SCORING RUBRIC:
 - **1**: No understanding - answer is completely off-track or nonsensical
 
 RESPOND IN THIS EXACT JSON FORMAT:
-{{
+{
   "understanding_score": <1-5>,
   "demonstrates_understanding": <true/false>,
   "assessment_rationale": "<brief explanation of the score>",
   "identified_gaps": "<what the user still doesn't understand, if any>",
   "identified_misconceptions": "<any incorrect beliefs the user has, if any>"
-}}
+}
 
 Provide your assessment:"""
 

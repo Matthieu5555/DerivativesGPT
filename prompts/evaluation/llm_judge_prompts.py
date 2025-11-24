@@ -63,7 +63,7 @@ CRITICAL: If the response accomplishes what the expected state requires, the sco
 Do not reduce scores for stylistic preferences. Either it meets the state or it doesn't.
 
 Return ONLY this JSON (no markdown, no extra text):
-{{"score": <1-5>, "reasoning": "<explanation of alignment or misalignment>"}}"""
+{"score": <1-5>, "reasoning": "<explanation of alignment or misalignment>"}"""
 
 CORRECTNESS_PROMPT = """You are an expert options pricing analyst evaluating correctness.
 
@@ -80,7 +80,7 @@ Evaluate correctness (1-5):
 Note: Only evaluate if response contains a price calculation. Return N/A if educational/off-topic.
 
 Return ONLY this JSON (no markdown, no extra text):
-{{"score": <1-5 or "N/A">, "reasoning": "<explanation>"}}"""
+{"score": <1-5 or "N/A">, "reasoning": "<explanation>"}"""
 
 COMPLETENESS_PROMPT = """You are an expert evaluating parameter extraction.
 
@@ -97,7 +97,7 @@ Evaluate completeness (1-5):
 Note: Only evaluate for pricing queries. Return N/A if educational/off-topic.
 
 Return ONLY this JSON (no markdown, no extra text):
-{{"score": <1-5 or "N/A">, "reasoning": "<explanation>"}}"""
+{"score": <1-5 or "N/A">, "reasoning": "<explanation>"}"""
 
 CLARITY_PROMPT = """You are an expert evaluating response clarity.
 
@@ -112,7 +112,7 @@ Evaluate clarity (1-5):
 - 1: Incomprehensible
 
 Return ONLY this JSON (no markdown, no extra text):
-{{"score": <1-5>, "reasoning": "<explanation>"}}"""
+{"score": <1-5>, "reasoning": "<explanation>"}"""
 
 RAG_QUALITY_PROMPT = """You are an expert evaluating RAG source quality.
 
@@ -129,4 +129,4 @@ Evaluate RAG quality (1-5):
 Note: Only evaluate for educational queries. Return N/A if pricing/off-topic.
 
 Return ONLY this JSON (no markdown, no extra text):
-{{"score": <1-5 or "N/A">, "reasoning": "<explanation>"}}"""
+{"score": <1-5 or "N/A">, "reasoning": "<explanation>"}"""

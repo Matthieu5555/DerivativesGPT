@@ -89,7 +89,7 @@ If user references previous discussion ("same", "but now", etc.), USE THOSE VALU
 Output ONLY valid JSON with NO explanatory text:
 
 **For SINGLE-ASSET:**
-{{
+{
     "is_multi_asset": false,
     "ticker": "AAPL",  // or null
     "strike_price": 150.0,  // or "ATM" or "5% above" or null
@@ -97,20 +97,20 @@ Output ONLY valid JSON with NO explanatory text:
     "option_type": "call",  // or "put" or null
     "extraction_successful": true,  // or false
     "missing_info": []  // or ["strike price"] etc
-}}
+}
 
 **For MULTI-ASSET:**
-{{
+{
     "is_multi_asset": true,
     "num_assets": 3,
     "assets": [
-        {{"ticker": "AAPL", "strike": 150.0, "option_type": "call", "expiry_days": 30.0}},
-        {{"ticker": "MSFT", "strike": "ATM", "option_type": "call", "expiry_days": 30.0}},
-        {{"ticker": "GOOGL", "strike": null, "option_type": "call", "expiry_days": 30.0}}
+        {"ticker": "AAPL", "strike": 150.0, "option_type": "call", "expiry_days": 30.0},
+        {"ticker": "MSFT", "strike": "ATM", "option_type": "call", "expiry_days": 30.0},
+        {"ticker": "GOOGL", "strike": null, "option_type": "call", "expiry_days": 30.0}
     ],
     "extraction_successful": true,
     "missing_info": ["strike for GOOGL"]
-}}
+}
 
 Smart Extraction Guidelines:
 1. **Extract everything** the user mentions, regardless of format
@@ -130,7 +130,7 @@ Examples:
 
 Query: "Price a 1-year european call on AAPL, strike 5% above current market price, time to expiry 3 months"
 Output:
-{{
+{
     "ticker": "AAPL",
     "strike_price": "5% above",
     "time_to_expiry_days": 90.0,
@@ -140,11 +140,11 @@ Output:
     "option_type": "call",
     "extraction_successful": true,
     "missing_info": []
-}}
+}
 
 Query: "Price Tesla put, 3 months"
 Output:
-{{
+{
     "ticker": "TSLA",
     "strike_price": null,
     "time_to_expiry_days": 90.0,
@@ -154,11 +154,11 @@ Output:
     "option_type": "put",
     "extraction_successful": false,
     "missing_info": ["strike price"]
-}}
+}
 
 Query: "What's the price of an option on AAPL?"
 Output:
-{{
+{
     "ticker": "AAPL",
     "strike_price": null,
     "time_to_expiry_days": null,
@@ -168,4 +168,4 @@ Output:
     "option_type": null,
     "extraction_successful": false,
     "missing_info": ["option type", "strike price", "time to expiry"]
-}}"""
+}"""
