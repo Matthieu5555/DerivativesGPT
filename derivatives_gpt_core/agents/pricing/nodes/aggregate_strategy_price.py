@@ -45,7 +45,7 @@ def aggregate_strategy_price(state: PricingState) -> Dict[str, Any]:
     for task_id, result in results.items():
         if "price" in result:
             leg_prices.append({
-                "type": result["option_type"],
+                "type": result.get("option_type", "unknown"),
                 "price": result["price"],
                 "strike": result.get("strike")
             })

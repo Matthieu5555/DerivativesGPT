@@ -1,5 +1,50 @@
+# Environment and secrets
 .env
-.venv
-.DS_Store
+.env.*
+!.env.example
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Claude and AI tooling
+.claude/
+
+# BMAD framework (local tooling)
+_bmad/
+_bmad-output/
+
+# Generated docs
+docs/
+
+# Logs
+*.log
+
+# Jupyter
+.ipynb_checkpoints/

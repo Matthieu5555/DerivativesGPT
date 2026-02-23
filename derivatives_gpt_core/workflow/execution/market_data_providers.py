@@ -7,6 +7,7 @@ from external sources (Yahoo Finance, etc.) during option pricing execution.
 
 from typing import Protocol
 import yfinance as yf
+import requests.exceptions
 import logging
 from tenacity import (
     retry,
@@ -54,7 +55,7 @@ class YFinanceProvider:
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=1, max=10),
-        retry=retry_if_exception_type((ConnectionError, TimeoutError, OSError)),
+        retry=retry_if_exception_type((ConnectionError, TimeoutError, OSError, requests.exceptions.ReadTimeout)),
         before_sleep=before_sleep_log(logger, logging.WARNING)
     )
     def get_spot_price(self, ticker: str) -> float:
@@ -79,7 +80,7 @@ class YFinanceProvider:
         """
         try:
             yf_ticker = yf.Ticker(ticker)
-            hist = yf_ticker.history(period="1d")
+            hist = yf_ticker.history(period="1d", timeout=10)
 
             if hist.empty:
                 # Don't retry - ticker likely invalid

@@ -217,6 +217,8 @@ async def _execute_pricing_task(
     _validate_pricing_parameters(state, strike)
 
     # Calculate option price using appropriate formula
+    if state.time_to_expiry_days is None:
+        raise ValueError("Cannot price option: time_to_expiry_days is None")
     time_years = state.time_to_expiry_days / 365
     price = _calculate_option_price(option_type, state, strike, time_years)
 
@@ -322,6 +324,8 @@ def _calculate_barrier_option_price(
     # Extract barrier level from state
     barrier_level = getattr(state, 'barrier_level', None)
     if not barrier_level:
+        if state.spot_price is None:
+            raise ValueError("Cannot price barrier option: spot_price is None")
         # Infer reasonable default based on barrier type
         if "down" in barrier_type:
             barrier_level = state.spot_price * 0.8

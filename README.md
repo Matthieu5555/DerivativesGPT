@@ -1,256 +1,112 @@
 # DerivativesGPT
 
-Ever wish you had a derivatives expert in your pocket? This is a financial derivatives assistant that can both explain complex concepts and actually price options for you. It's built on LangGraph with multiple specialized AI agents working together.
+A financial derivatives assistant that both explains complex concepts and prices options in real time. It runs on LangGraph with multiple specialized AI agents — a pricing engine, an educational tutor, and a strategy analyzer — that collaborate behind a single conversational interface.
 
-**Quick demo:** Try it out at [matthieu-separt.site](https://matthieu-separt.site/)
+**Live demo:** [matthieu-separt.site](https://matthieu-separt.site/)
 
-## What it does
+## Getting started
 
-Think of it as having three experts at your disposal:
-- A **pricing specialist** who can value vanilla options, American options, exotics (Asian, digital, barrier) - pretty much anything you throw at it
-- An **educational tutor** that explains derivatives concepts in plain English and adapts to your level of understanding
-- A **strategist** who can analyze multi-leg option strategies and their risk profiles
-
-Plus it can pull real-time market data when needed, so you're not working with stale numbers.
-
-## What you'll need
-
-- Python 3.11+ (check with `python --version`)
-- API key from OpenAI, Google Gemini, or OpenRouter - pick your favorite
-- UV package manager makes life easier, but regular pip works too
-- (Optional but recommended) LangSmith API key if you want to peek under the hood and see what the agents are thinking
-- (Optional) Tavily API key for web search features
-
-## Getting Started
-
-### 1. Grab the code
+Clone the repo and install dependencies. The project uses [uv](https://docs.astral.sh/uv/) for fast, reproducible package management, though pip works too.
 
 ```bash
-git clone https://github.com/yourusername/DerivativesGPT.git
+git clone https://github.com/Matthieu5555/DerivativesGPT.git
 cd DerivativesGPT
 ```
 
-### 2. Install UV (recommended but not required)
-
-UV is blazing fast for managing Python packages. If you want it:
+With uv (recommended):
 
 ```bash
-# macOS/Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Windows
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-
-# Or just use pip if you prefer
-pip install uv
+uv sync
 ```
 
-Don't want UV? No worries, regular pip works fine too.
+Or with pip:
 
-### 3. Configure your API keys
+```bash
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+```
 
-Copy the example file and add your keys:
+## Configuration
+
+Copy the environment template, then fill in whichever LLM provider you prefer — only one is required.
 
 ```bash
 cp .env.example .env
 ```
 
-Now open `.env` in your editor and set these up:
-
-#### The essentials
+At minimum, set `LLM_PROVIDER` and the corresponding API key:
 
 ```bash
-# Pick your LLM provider
-LLM_PROVIDER=openai  # or "gemini" or "openrouter"
-
-# Add the matching API key
-OPENAI_API_KEY=sk-your-key-here  # Get yours at https://platform.openai.com/api-keys
-# OR
-GEMINI_API_KEY=your-key-here  # From https://makersuite.google.com/app/apikey
-# OR
-OPENROUTER_API_KEY=your-key-here  # From https://openrouter.ai/keys
+LLM_PROVIDER=openai          # or "gemini" or "openrouter"
+OPENAI_API_KEY=sk-...        # https://platform.openai.com/api-keys
+GEMINI_API_KEY=...           # https://makersuite.google.com/app/apikey
+OPENROUTER_API_KEY=...       # https://openrouter.ai/keys
 ```
 
-#### LangSmith (seriously, get this)
+The RAG vectorstore ships with the repo, so retrieval-augmented educational responses work out of the box. LangSmith tracing is optional but highly recommended for inspecting agent behavior — set `ENABLE_LANGSMITH=true` and add your API key. See `.env.example` for every available setting.
 
-This lets you watch your agents think in real-time. It's incredibly useful:
+## Running the app
 
 ```bash
-LANGSMITH_API_KEY=your-key-here  # Grab from https://smith.langchain.com/settings
-LANGSMITH_PROJECT=derivatives-gpt  # Name it whatever you want
-ENABLE_LANGSMITH=true
+uv run chainlit run main.py    # or: python main.py
 ```
 
-#### Extra features
+This starts the Chainlit web UI at `http://localhost:8000`.
+
+## What you can ask
+
+The system routes your query to the right agent automatically, so just ask naturally.
+
+- **Pricing:** "Price a call on AAPL with strike 150, expiring in 30 days" — handles vanilla, American, Asian, digital, and barrier options as well as multi-leg strategies like straddles, spreads, and butterflies.
+- **Education:** "How does implied volatility affect option prices?" — explains derivatives concepts with textbook citations from the built-in RAG index.
+- **Strategy:** "Analyze a bull call spread on NVDA" — breaks down risk profiles and payoff structures.
+
+## Project layout
+
+```
+derivatives_gpt_core/
+├── agents/           # Multi-agent orchestration (pricing, educational, shared)
+├── features/         # Pricing models: vanilla, american, asian, digital, barrier
+├── core/             # LangGraph graph definitions and routing
+├── rag/              # Hybrid BM25 + FAISS retrieval
+├── data/             # Market data providers and database access
+└── workflow/         # Task execution and planning
+databases/
+└── vectorstore/      # Pre-built FAISS index + metadata (ships with repo)
+prompts/              # LLM prompt templates
+tests/                # Test suite
+```
+
+## Development
+
+Run the test suite with:
 
 ```bash
-# Web search for live market data
-ENABLE_WEB_SEARCH=true
-TAVILY_API_KEY=your-key-here  # Get from https://tavily.com/
-
-# RAG for better educational responses
-RAG_ENABLED=true
+uv run pytest
 ```
 
-### 4. Install everything
-
-**If you installed UV:**
+Code quality:
 
 ```bash
-uv sync  # That's it! UV handles the venv automatically
+uv run black derivatives_gpt_core/
+uv run ruff check derivatives_gpt_core/
+uv run mypy derivatives_gpt_core/
 ```
 
-**If you're using regular pip:**
+## Troubleshooting
 
-```bash
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### 5. Fire it up
-
-```bash
-python chainlit_application_launcher.py
-```
-
-Your browser should open to `http://localhost:8000` and you're off to the races!
-
-### 6. Watch your agents work (if you set up LangSmith)
-
-This part is optional but super cool if you're curious how the system makes decisions:
-
-**Quick way:**
-```bash
-python open_langsmith_dashboard.py
-```
-
-Then navigate to your project and you'll see:
-- Every decision your agents make
-- How long each step takes
-- Token usage and costs
-- The full conversation flow
-
-It's like having X-ray vision into the AI's brain.
-
-## Try asking it stuff
-
-Once you're up and running, here are some things you can try:
-
-**Pricing questions:**
-- "Price a call option on AAPL with strike 150, expiry in 30 days"
-- "Calculate the price of an iron condor on SPY"
-- "What's the value of an American put option on MSFT, strike 280?"
-
-**Learning mode:**
-- "Explain what a call option is"
-- "How does implied volatility affect option prices?"
-- "What's the difference between European and American options?"
-
-**Strategy analysis:**
-- "Analyze a bull call spread on NVDA"
-- "What's the risk profile of a straddle?"
-- "Compare covered call vs cash-secured put strategies"
-
-The system figures out which agent to use based on what you're asking, so just ask naturally.
-
-## Project Structure
-
-```
-DerivativesGPT/
-├── .env.example                 # Environment variables template
-├── .env                        # Your configuration (create from .env.example)
-├── chainlit_application_launcher.py  # Main entry point (what you run)
-├── derivatives_gpt_core/       # Core application logic
-│   ├── agents/                # Multi-agent implementations
-│   │   ├── educational/       # Educational agent
-│   │   ├── pricing/          # Pricing agent
-│   │   └── shared/           # Shared agent utilities
-│   ├── features/              # Option pricing models
-│   │   ├── vanilla/          # European options
-│   │   ├── american/         # American options
-│   │   ├── asian/           # Asian options
-│   │   ├── digital/         # Digital options
-│   │   └── barrier/         # Barrier options
-│   ├── core/                 # Core graph and routing logic
-│   └── data/                 # Market data providers
-├── langgraph/                 # LangGraph deployment configs (optional)
-├── prompts/                   # LLM prompt templates
-├── tests/                     # Test suite
-└── docs/                      # Documentation
-```
-
-## When things go wrong
-
-**"API key not found"**
-- Double-check your `.env` file is in the project root
-- Make sure you didn't add quotes around your API keys
-- Verify you set `LLM_PROVIDER` to match whichever key you're using
-
-**"Module not found"**
-- Is your virtual environment activated? Look for `(.venv)` in your terminal
-- Try reinstalling: `uv sync` or `pip install -r requirements.txt`
-- Check your Python version with `python --version` - needs to be 3.11+
-
-**LangSmith traces aren't showing up**
-- Make sure `ENABLE_LANGSMITH=true` in your `.env`
-- Verify your API key works at https://smith.langchain.com/settings
-- Keep your project name simple (no weird characters)
-
-**App won't start**
-- Port 8000 might be busy. Try `lsof -i :8000` to check (Mac/Linux)
-- Use a different port: `python chainlit_application_launcher.py --port 8001`
-- Read the error message carefully - it usually tells you what's wrong
-
-**Still stuck?**
-- Check the `docs/` folder for more detailed guides
-- Open an issue on GitHub if you think it's a bug
-- LangSmith docs are at https://docs.smith.langchain.com/
-
-## For developers
-
-**Running tests:**
-```bash
-pytest                                    # Run everything
-pytest tests/test_pricing_capabilities.py # Just one file
-pytest --cov=derivatives_gpt_core        # With coverage report
-```
-
-**Code quality tools:**
-```bash
-black derivatives_gpt_core/      # Format code
-mypy derivatives_gpt_core/       # Type checking
-ruff check derivatives_gpt_core/ # Linting
-```
-
-## LangGraph deployment (optional)
-
-The `langgraph/` folder contains configuration files for LangGraph's deployment tools. You only need these if you want to:
-
-- Use **LangGraph Studio** for visual debugging and development
-- Run the **LangGraph dev server** (`langgraph dev`)
-- Deploy to **LangGraph Cloud**
-
-If you're just running the Chainlit app (which is the normal way), you can ignore this folder completely.
-
-**To use LangGraph tooling:**
-```bash
-cd langgraph
-langgraph dev  # Starts the LangGraph dev server
-```
-
-Then open LangGraph Studio and connect to the local server. You'll get a visual interface showing how your agents make decisions.
-
-## Want to contribute?
-
-Pull requests are welcome! If you're planning something big, open an issue first so we can discuss it.
+| Problem | Fix |
+|---|---|
+| "API key not found" | Check `.env` exists at the project root and `LLM_PROVIDER` matches the key you set. |
+| "Module not found" | Activate your venv (look for `(.venv)` in your prompt), then re-run `uv sync`. |
+| Port 8000 in use | `lsof -i :8000` to find the culprit, or pass `--port 8001`. |
+| LangSmith traces missing | Verify `ENABLE_LANGSMITH=true` and that your key works at [smith.langchain.com](https://smith.langchain.com/settings). |
 
 ## Built with
 
-- [LangGraph](https://github.com/langchain-ai/langgraph) and [LangChain](https://github.com/langchain-ai/langchain) for the agent framework
-- [Chainlit](https://github.com/Chainlit/chainlit) for the web UI
-- [LangSmith](https://smith.langchain.com) for observability
+[LangGraph](https://github.com/langchain-ai/langgraph) and [LangChain](https://github.com/langchain-ai/langchain) for agent orchestration, [Chainlit](https://github.com/Chainlit/chainlit) for the web UI, [LangSmith](https://smith.langchain.com) for observability, and [FAISS](https://github.com/facebookresearch/faiss) + BM25 for hybrid retrieval.
 
 ## License
 
-MIT - see the [LICENSE](LICENSE) file
+MIT

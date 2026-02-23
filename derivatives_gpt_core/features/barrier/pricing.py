@@ -311,6 +311,16 @@ def price_barrier_option(
     Returns:
         Option price
     """
+    # Input validation - defense in depth
+    if S is None or S <= 0:
+        raise ValueError(f"Spot price must be positive, got: {S}")
+    if K is None or K <= 0:
+        raise ValueError(f"Strike price must be positive, got: {K}")
+    if T is None or T <= 0:
+        raise ValueError(f"Time to maturity must be positive, got: {T}")
+    if sigma is None or sigma <= 0:
+        raise ValueError(f"Volatility must be positive, got: {sigma}")
+
     pricing_functions = {
         ("down-out", "call"): price_down_out_call,
         ("down-out", "put"): price_down_out_put,

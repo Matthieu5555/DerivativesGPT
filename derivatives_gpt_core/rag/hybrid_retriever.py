@@ -39,10 +39,18 @@ class HybridRAGRetriever:
         if not metadata_path.exists():
             raise FileNotFoundError(f"Metadata not found: {metadata_path}")
 
-        self.index = faiss.read_index(str(index_path))
+        try:
+            self.index = faiss.read_index(str(index_path))
+        except Exception as e:
+            logger.error(f"Failed to load FAISS index from {index_path}: {e}")
+            raise RuntimeError(f"Corrupted or unreadable FAISS index: {index_path}") from e
 
-        with open(metadata_path, 'r') as f:
-            self.metadata = json.load(f)
+        try:
+            with open(metadata_path, 'r') as f:
+                self.metadata = json.load(f)
+        except (json.JSONDecodeError, UnicodeDecodeError) as e:
+            logger.error(f"Failed to parse metadata JSON from {metadata_path}: {e}")
+            raise RuntimeError(f"Corrupted metadata file: {metadata_path}") from e
 
         logger.info(f"Loaded FAISS index: {self.index.ntotal} vectors, {len(self.metadata)} metadata entries")
 
